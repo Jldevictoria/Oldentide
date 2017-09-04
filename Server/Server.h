@@ -30,8 +30,8 @@ class Server{
         ~Server();
         void Run();
         int GetPacketQueueSize();
-        void BroadcastToConnections(std::string msg, std::string fromUser);
-        void SendMessageToConnection(std::string msg, std::string fromUser, std::string toUser);
+        void BroadcastToConnections(std::string msg, std::string fromUserSessionId);
+        void SendMessageToConnection(std::string msg, std::string fromUserSessionId, std::string toUserSessionId);
     private:
         int sockfd;
         SQLConnector * sql;
@@ -39,7 +39,7 @@ class Server{
         AdminShell * adminshell;
         std::queue<packets::packet_t> packetQueue;
         // Session to socket mapping
-        std::map<int, sockaddr_in> activeConnections;
+        std::map<std::string, sockaddr_in> activeConnections;
 
         // Wrap all globals accessed in WorkerThread with mutexes
         std::mutex gameStateMutex;

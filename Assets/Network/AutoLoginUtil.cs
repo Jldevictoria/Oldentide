@@ -46,7 +46,7 @@ public class AutoLoginUtil : MonoBehaviour
             {
                 Regex sessionFinder = new Regex("session_id=([^;]*)");
                 Match sessionId = sessionFinder.Match(cookie);
-                Debug.Log(sessionId.Groups[1].Value);
+                Debug.Log("User has logged in and received session: " + sessionId.Groups[1].Value);
                 OldentidePlayerInformation.accountName = username;
                 OldentidePlayerInformation.sessionId = sessionId.Groups[1].Value;
                 networkInterface.ConnectToServer();

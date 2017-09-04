@@ -94,7 +94,7 @@ int main(int argc, char * argv[]) {
     int sockfd;
     struct sockaddr_in servaddr;
     char * server_address;
-    int session = 0;
+    std::string session = "";
     int packetNumber = 1;
     bool running = true;
 
@@ -297,4 +297,3 @@ int main(int argc, char * argv[]) {
         }
     }
 }
-

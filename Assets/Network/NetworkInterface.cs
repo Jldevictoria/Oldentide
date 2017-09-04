@@ -26,7 +26,6 @@ public class NetworkInterface : MonoBehaviour {
     Queue<Packet_t> packetQueue = new Queue<Packet_t>();
 
     int packetNumber = 1;
-    int session = 0;
 
     // Set this to false to stop the thread, or else it will keep running
     bool listenForPackets = true;
@@ -153,7 +152,7 @@ public class NetworkInterface : MonoBehaviour {
             }
             case Oldentide.Networking.PTYPE.SENDSERVERCOMMAND: {
                 var data = MessagePackSerializer.Deserialize<PacketSendservercommand>(returnPacket.data);
-                if(data.sessionId != session){
+                if(data.sessionId != OldentidePlayerInformation.sessionId){
                     Debug.Log("Invalid session! Ignoring SENDSERVERCOMMAND packet...");
                     return;
                 }
@@ -165,19 +164,19 @@ public class NetworkInterface : MonoBehaviour {
             case Oldentide.Networking.PTYPE.CONNECT: {
                 var data = MessagePackSerializer.Deserialize<PacketConnect>(returnPacket.data);
                 // Debug.Log("Connect packet response! sessionId: " + data.sessionId + " ; packetId: " + data.packetId);
-                if(data.sessionId != session){
+                if(data.sessionId != OldentidePlayerInformation.sessionId) {
                     Debug.Log("Setting new session to " + data.sessionId);
-                    session = data.sessionId;
+                    OldentidePlayerInformation.sessionId = data.sessionId;
                 }
                 else {
-                    Debug.Log("Session is already set to " + session);
+                    Debug.Log("Session is already set to " + OldentidePlayerInformation.sessionId);
                 }
                 break;
             }
 
             case Oldentide.Networking.PTYPE.SENDPLAYERCOMMAND: {
                 var data = MessagePackSerializer.Deserialize<PacketSendplayercommand>(returnPacket.data);
-                if(data.sessionId != session){
+                if(data.sessionId != OldentidePlayerInformation.sessionId) {
                     Debug.Log("Invalid session! Ignoring packet response");
                     return;
                 }
@@ -187,7 +186,7 @@ public class NetworkInterface : MonoBehaviour {
 
             case Oldentide.Networking.PTYPE.LISTCHARACTERS: {
                 var data = MessagePackSerializer.Deserialize<PacketListcharacters>(returnPacket.data);
-                if(data.sessionId != session){
+                if(data.sessionId != OldentidePlayerInformation.sessionId) {
                     Debug.Log("Invalid session! Ignoring packet response");
                     return;
                 }
@@ -224,7 +223,7 @@ public class NetworkInterface : MonoBehaviour {
         Debug.Log("sending a single CONNECT packet via message pack!!");
 
         PacketConnect pp = new PacketConnect();
-        pp.sessionId = session;
+        pp.sessionId = OldentidePlayerInformation.sessionId;
         pp.packetId = packetNumber;
         packetNumber++;
 
@@ -236,7 +235,7 @@ public class NetworkInterface : MonoBehaviour {
 
     void ListCharactersAction(){
         PacketListcharacters pp = new PacketListcharacters();
-        pp.sessionId = session;
+        pp.sessionId = OldentidePlayerInformation.sessionId;
         pp.packetId = packetNumber;
         // Set to empty array, NOT null. This makes a difference in messagepack
         pp.characterArray = new string [0];
@@ -250,7 +249,7 @@ public class NetworkInterface : MonoBehaviour {
     void BroadcastAction(object command){
         Debug.Log("Sending a broadcast!");
         PacketSendplayercommand pp = new PacketSendplayercommand();
-        pp.sessionId = session;
+        pp.sessionId = OldentidePlayerInformation.sessionId;
         pp.packetId = packetNumber;
         pp.command = (string)command;
         packetNumber++;

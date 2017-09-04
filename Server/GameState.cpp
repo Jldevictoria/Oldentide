@@ -29,32 +29,26 @@ GameState::~GameState() {
 }
 
 // Checks if the session id given by the user is valid before allowing further interaction.
-bool GameState::VerifySession(int sessionId) {
-    if (sessions.find(sessionId) != sessions.end()) {
-        return true;
-    }
-    else {
-        return false;
+bool GameState::VerifySession(std::string sessionId) {
+    try {
+      Account accountForSession = sql->GetAccountForSession(sessionId);
+      return true;
+    } catch(...) {
+      return false;
     }
 }
 
 // Active sessions refer to users that have already authenticated and may or may not be already using a character.
-bool GameState::VerifyActiveSession(int sessionId) {
-    if (activeSessions.find(sessionId) != activeSessions.end()) {
-        return true;
-    }
-    else {
-        return false;
-    }
+bool GameState::VerifyActiveSession(std::string sessionId) {
+    return false; //activeSessions.find(sessionId) != activeSessions.end();
 }
 
-void GameState::DisconnectSession(int sessionId) {
-    activeSessions.erase(sessionId);
-    sessions.erase(sessionId);
+void GameState::DisconnectSession(std::string sessionId) {
+    // TODO: Clear user session in db
     return;
 }
 
-void GameState::PlayerCommand(std::string pCommand, int sessionId) {
+void GameState::PlayerCommand(std::string pCommand, std::string sessionId) {
     std::vector<std::string> pCommandTokens = utils::Tokenfy(pCommand, ' ');
     // e.g. /s 1 What's up, Client 1?
     // e.g. /s admin What's up, admin?
@@ -64,7 +58,7 @@ void GameState::PlayerCommand(std::string pCommand, int sessionId) {
         // std::string saying = pCommand.substr(3,std::string::npos);
         const char *msgPointer = pCommand.c_str()+pCommandTokens[0].length()+1+pCommandTokens[1].length()+1;
 
-        server->SendMessageToConnection(std::string(msgPointer), std::to_string(sessionId), std::string(pCommandTokens[1]));
+        server->SendMessageToConnection(std::string(msgPointer), sessionId, std::string(pCommandTokens[1]));
     }
     else if (pCommandTokens[0] == "/y") {
         std::cout << "Detected a yell command!" << std::endl;
@@ -76,7 +70,7 @@ void GameState::PlayerCommand(std::string pCommand, int sessionId) {
         // std::cout << "Detected a help channel command!" << std::endl;
         // TODO: Prevent users from doing buffer overflow attacks
         // Tell the server to send out a broadcast
-        server->BroadcastToConnections(pCommand.substr(3,std::string::npos), std::to_string(sessionId));
+        server->BroadcastToConnections(pCommand.substr(3,std::string::npos), sessionId);
     }
     else if (pCommandTokens[0] == "/w") {
         std::cout << "Detected a whisper command!" << std::endl;
@@ -84,10 +78,8 @@ void GameState::PlayerCommand(std::string pCommand, int sessionId) {
     // std::cout << "Full player command: " << pCommand << std::endl;
 }
 
-void GameState::SelectPlayer(int sessionId) {
-    if (sessions.find(sessionId) != sessions.end()) {
-        activeSessions.insert(sessionId);
-    }
+void GameState::SelectPlayer(std::string sessionId) {
+    // TODO
     return;
 }
 
@@ -99,23 +91,12 @@ void GameState::StorePlayer(std::string name) {
     return;
 }
 
-int GameState::GenerateSession(int sessionId) {
-    if (sessions.find(sessionId) != sessions.end()) {
-        return sessionId;
-    }
-    else {
-        sessions.insert(curSession);
-        curSession++;
-        return (curSession - 1);
-    }
-}
-
-void GameState::SetSessionAccountName(char *accountName, int sessionId) {
+void GameState::SetSessionAccountName(char *accountName, std::string sessionId) {
     std::string accountNameString = accountName;
     sessionAccounts[sessionId] = accountNameString;
 }
 
-std::string GameState::GetSessionAccountName(int sessionId) {
+std::string GameState::GetSessionAccountName(std::string sessionId) {
     return sessionAccounts[sessionId];
 }
 

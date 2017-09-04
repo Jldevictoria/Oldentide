@@ -59,7 +59,7 @@ namespace packets {
     class Generic {
     public:
         int32_t packetId;
-        int32_t sessionId;
+        std::string sessionId;
         std::string message;
         MSGPACK_DEFINE(packetId, sessionId, message);
     };
@@ -67,21 +67,21 @@ namespace packets {
     class Ack {
     public:
         int32_t packetId;
-        int32_t sessionId;
+        std::string sessionId;
         MSGPACK_DEFINE(packetId, sessionId);
     };
 
     class Connect {
     public:
         int32_t packetId;
-        int32_t sessionId;
+        std::string sessionId;
         MSGPACK_DEFINE(packetId, sessionId);
     };
 
     class Disconnect {
     public:
         int32_t packetId;
-        int32_t sessionId;
+        std::string sessionId;
         MSGPACK_DEFINE(packetId, sessionId);
     };
 
@@ -89,7 +89,7 @@ namespace packets {
     class Error {
     public:
         int32_t packetId;
-        int32_t sessionId;
+        std::string sessionId;
         std::string errorMsg;
         // TODO: Implement error number system
         // int32_t errorNumber;
@@ -99,7 +99,7 @@ namespace packets {
     class Listcharacters {
     public:
         int32_t packetId;
-        int32_t sessionId;
+        std::string sessionId;
         // Array of characters!
         std::vector<std::string> characters;
         MSGPACK_DEFINE(packetId, sessionId, characters);
@@ -108,7 +108,7 @@ namespace packets {
     class Selectcharacter {
     public:
         int32_t packetId;
-        int32_t sessionId;
+        std::string sessionId;
         std::string character;
         MSGPACK_DEFINE(packetId, sessionId, character);
     };
@@ -116,7 +116,7 @@ namespace packets {
     class Deletecharacter {
     public:
         int32_t packetId;
-        int32_t sessionId;
+        std::string sessionId;
         std::string character;
         MSGPACK_DEFINE(packetId, sessionId, character);
     };
@@ -124,7 +124,7 @@ namespace packets {
     class Createcharacter {
     public:
         int32_t packetId;
-        int32_t sessionId;
+        std::string sessionId;
         std::string firstName;
         std::string lastName;
         std::string guild;
@@ -155,14 +155,14 @@ namespace packets {
     class Initializegame {
     public:
         int32_t packetId;
-        int32_t sessionId;
+        std::string sessionId;
         MSGPACK_DEFINE(packetId, sessionId);
     };
 
     class Updatepc {
     public:
         int32_t packetId;
-        int32_t sessionId;
+        std::string sessionId;
         std::string firstName;
         std::string lastName;
         std::string race;
@@ -200,14 +200,14 @@ namespace packets {
     class Updatenpc {
     public:
         int32_t packetId;
-        int32_t sessionId;
+        std::string sessionId;
         MSGPACK_DEFINE(packetId, sessionId);
     };
 
     class Sendplayercommand {
     public:
         int32_t packetId;
-        int32_t sessionId;
+        std::string sessionId;
         std::string command;
         MSGPACK_DEFINE(packetId, sessionId, command);
     };
@@ -215,7 +215,7 @@ namespace packets {
     class Sendservercommand {
     public:
         int32_t packetId;
-        int32_t sessionId;
+        std::string sessionId;
         std::string command;
         MSGPACK_DEFINE(packetId, sessionId, command);
     };
@@ -223,21 +223,21 @@ namespace packets {
     class Sendplayeraction {
     public:
         int32_t packetId;
-        int32_t sessionId;
+        std::string sessionId;
         MSGPACK_DEFINE(packetId, sessionId);
     };
 
     class Sendserveraction {
     public:
         int32_t packetId;
-        int32_t sessionId;
+        std::string sessionId;
         MSGPACK_DEFINE(packetId, sessionId);
     };
 
     class Unity {
     public:
         int32_t packetId;
-        int32_t sessionId;
+        std::string sessionId;
         int32_t data1;
         int32_t data2;
         int32_t data3;

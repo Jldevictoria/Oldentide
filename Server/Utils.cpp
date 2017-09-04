@@ -338,7 +338,7 @@ namespace utils {
         // Return error packet
         packets::Error returnPacket;
         // Since we couldn't convert/cast msgpack data, we don't know what sessionId or packetId it had
-        returnPacket.sessionId = 0;
+        returnPacket.sessionId = "";
         returnPacket.packetId = 0;
         returnPacket.errorMsg = errorMsg;
         std::stringstream buffer;

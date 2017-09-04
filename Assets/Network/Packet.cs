@@ -41,7 +41,7 @@ namespace Oldentide.Networking {
 	    [Key(0)]
 	    public int packetId;
 	    [Key(1)]
-	    public int sessionId;
+	    public string sessionId;
 	};
 
 	[MessagePackObject]
@@ -49,7 +49,7 @@ namespace Oldentide.Networking {
 	    [Key(0)]
 	    public int packetId;
 	    [Key(1)]
-	    public int sessionId;
+	    public string sessionId;
 	};
 
 	[MessagePackObject]
@@ -57,7 +57,7 @@ namespace Oldentide.Networking {
 	    [Key(0)]
 	    public int packetId;
 	    [Key(1)]
-	    public int sessionId;
+	    public string sessionId;
 	};
 
 	[MessagePackObject]
@@ -65,7 +65,7 @@ namespace Oldentide.Networking {
 	    [Key(0)]
 	    public int packetId;
 	    [Key(1)]
-	    public int sessionId;
+	    public string sessionId;
 	    [Key(2)]
 	    public string [] characterArray;
 	};
@@ -75,7 +75,7 @@ namespace Oldentide.Networking {
 	    [Key(0)]
 	    public int packetId;
 	    [Key(1)]
-	    public int sessionId;
+	    public string sessionId;
 	    [Key(2)]
 	    public string errorMsg;
 	    // TODO: Implement error number system
@@ -88,7 +88,7 @@ namespace Oldentide.Networking {
 	    [Key(0)]
 	    public int packetId;
 	    [Key(1)]
-	    public int sessionId;
+	    public string sessionId;
 	    [Key(2)]
 	    public string character;
 	};
@@ -98,7 +98,7 @@ namespace Oldentide.Networking {
 	    [Key(0)]
 	    public int packetId;
 	    [Key(1)]
-	    public int sessionId;
+	    public string sessionId;
 	    [Key(2)]
 	    public string character;
 	};
@@ -108,7 +108,7 @@ namespace Oldentide.Networking {
 	    [Key(0)]
 	    public int packetId;
 	    [Key(1)]
-	    public int sessionId;
+	    public string sessionId;
 	    [Key(2)]
 	    public string firstName;
 	    [Key(3)]
@@ -132,7 +132,7 @@ namespace Oldentide.Networking {
         [Key(0)]
         public int packetId;
         [Key(1)]
-        public int sessionId;
+        public string sessionId;
 	};
 
     [MessagePackObject]
@@ -140,7 +140,7 @@ namespace Oldentide.Networking {
         [Key(0)]
         public int packetId;
         [Key(1)]
-        public int sessionId;
+        public string sessionId;
         [Key(2)]
         public string firstName;
         [Key(3)]
@@ -176,7 +176,7 @@ namespace Oldentide.Networking {
         [Key(0)]
         public int packetId;
         [Key(1)]
-        public int sessionId;
+        public string sessionId;
 	};
 
     [MessagePackObject]
@@ -184,7 +184,7 @@ namespace Oldentide.Networking {
         [Key(0)]
         public int packetId;
         [Key(1)]
-        public int sessionId;
+        public string sessionId;
         [Key(2)]
         public string command;
     };
@@ -194,7 +194,7 @@ namespace Oldentide.Networking {
         [Key(0)]
         public int packetId;
         [Key(1)]
-        public int sessionId;
+        public string sessionId;
         [Key(2)]
 	    public string command;
 	};
@@ -204,7 +204,7 @@ namespace Oldentide.Networking {
         [Key(0)]
         public int packetId;
         [Key(1)]
-        public int sessionId;
+        public string sessionId;
 	};
 
     [MessagePackObject]
@@ -212,7 +212,7 @@ namespace Oldentide.Networking {
         [Key(0)]
         public int packetId;
         [Key(1)]
-        public int sessionId;
+        public string sessionId;
 	};
 
 	// mark MessagePackObjectAttribute
@@ -221,7 +221,7 @@ namespace Oldentide.Networking {
 	    [Key(0)]
 	    public int packetId;
 	    [Key(1)]
-	    public int sessionId;
+	    public string sessionId;
 	    [Key(2)]
 		public int data1;
 	    [Key(3)]
@@ -233,7 +233,4 @@ namespace Oldentide.Networking {
 	    [Key(6)]
 		public int data5;
 	};
-
-
-
 }

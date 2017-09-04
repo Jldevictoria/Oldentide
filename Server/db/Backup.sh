@@ -9,7 +9,7 @@ echo "Backup up database now..."
 sqlite3 Oldentide.db <<EOF
 .headers on
 .mode csv
-.output accounts.csv
+.output accounts_backup.csv
 SELECT * FROM accounts;
 .quit
 EOF
@@ -18,7 +18,7 @@ echo "Accounts complete."
 sqlite3 Oldentide.db <<EOF
 .headers on
 .mode csv
-.output players.csv
+.output players_backup.csv
 SELECT * FROM players;
 .quit
 EOF
@@ -27,7 +27,7 @@ echo "Players complete."
 sqlite3 Oldentide.db <<EOF
 .headers on
 .mode csv
-.output npcs.csv
+.output npcs_backup.csv
 SELECT * FROM npcs;
 .quit
 EOF
@@ -36,9 +36,8 @@ echo "NPCs complete."
 sqlite3 Oldentide.db <<EOF
 .headers on
 .mode csv
-.output items.csv
+.output items_backup.csv
 SELECT * FROM items;
 .quit
 EOF
 echo "Items complete."
-

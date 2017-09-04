@@ -72,6 +72,28 @@ bool SQLConnector::InsertAccount(char *accountName, char *key, char *salt) {
     }
 }
 
+Account SQLConnector::GetAccountForSession(std::string sessionId) {
+    // TODO Sanitize sessionId
+
+    std::set<Account> accounts;
+    std::stringstream query;
+    char *errorMessage = NULL;
+
+    query << "SELECT * FROM accounts";
+    sqls = sqlite3_exec(database, query.str().c_str(), ExecuteCallback, (void*)&accounts, &errorMessage);
+    if (sqls != SQLITE_OK) {
+        std::cout << "Could not Execute SQL query! Return Code:" << sqls << std::endl;
+    }
+    if (errorMessage) {
+        std::cout << "SQL ERROR MESSAGE: " << errorMessage << std::endl;
+        sqlite3_free(errorMessage);
+    }
+    if (accounts.empty()) {
+      throw std::runtime_error("No account with session");
+    }
+    return *accounts.begin();
+}
+
 // Inserts a new player into the database.
 bool SQLConnector::InsertPlayer(Player p) {
     std::stringstream query;
@@ -130,7 +152,7 @@ bool SQLConnector::InsertPlayer(Player p) {
     query << p.GetSorcery() << ", ";
     query << p.GetShamanic() << ", ";
     query << p.GetSummoning() << ", ";
-    query << p.GetSpellcraft() << ", "; 
+    query << p.GetSpellcraft() << ", ";
     query << p.GetFocus() << ", ";
     query << p.GetArmorsmithing() << ", ";
     query << p.GetTailoring() << ", ";
@@ -140,40 +162,40 @@ bool SQLConnector::InsertPlayer(Player p) {
     query << p.GetLapidary() << ", ";
     query << p.GetCalligraphy() << ", ";
     query << p.GetEnchanting() << ", ";
-    query << p.GetHerbalism() << ", "; 
+    query << p.GetHerbalism() << ", ";
     query << p.GetHunting() << ", ";
-    query << p.GetMining() << ", "; 
+    query << p.GetMining() << ", ";
     query << p.GetBargaining() << ", ";
-    query << p.GetCamping() << ", "; 
-    query << p.GetFirstAid() << ", "; 
+    query << p.GetCamping() << ", ";
+    query << p.GetFirstAid() << ", ";
     query << p.GetLore() << ", ";
-    query << p.GetPickLocks() << ", "; 
-    query << p.GetScouting() << ", "; 
+    query << p.GetPickLocks() << ", ";
+    query << p.GetScouting() << ", ";
     query << p.GetSearch() << ", ";
-    query << p.GetStealth() << ", "; 
-    query << p.GetTraps() << ", "; 
+    query << p.GetStealth() << ", ";
+    query << p.GetTraps() << ", ";
     query << p.GetAeolandis() << ", ";
-    query << p.GetHieroform() << ", "; 
+    query << p.GetHieroform() << ", ";
     query << p.GetHighGundis() << ", ";
-    query << p.GetOldPraxic() << ", "; 
-    query << p.GetPraxic() << ", "; 
+    query << p.GetOldPraxic() << ", ";
+    query << p.GetPraxic() << ", ";
     query << p.GetRunic() << ", ";
-    query << "'" << p.GetHead() << "', "; 
-    query << "'" << p.GetChest() << "', "; 
+    query << "'" << p.GetHead() << "', ";
+    query << "'" << p.GetChest() << "', ";
     query << "'" << p.GetArms() << "', ";
-    query << "'" << p.GetHands() << "', "; 
-    query << "'" << p.GetLegs() << "', "; 
+    query << "'" << p.GetHands() << "', ";
+    query << "'" << p.GetLegs() << "', ";
     query << "'" << p.GetFeet() << "', ";
-    query << "'" << p.GetCloak() << "', "; 
-    query << "'" << p.GetNecklace() << "', "; 
+    query << "'" << p.GetCloak() << "', ";
+    query << "'" << p.GetNecklace() << "', ";
     query << "'" << p.GetRingOne() << "', ";
     query << "'" << p.GetRingTwo() << "', ";
     query << "'" << p.GetRightHand() << "', ";
     query << "'" << p.GetLeftHand() << "', ";
-    query << "'" << p.GetZone() << "', "; 
+    query << "'" << p.GetZone() << "', ";
     query << p.GetX() << ", ";
-    query << p.GetY() << ", "; 
-    query << p.GetZ() << ", "; 
+    query << p.GetY() << ", ";
+    query << p.GetZ() << ", ";
     query << p.GetPitch() << ", ";
     query << p.GetYaw() << ")";
     std::cout << query.str() << std::endl;

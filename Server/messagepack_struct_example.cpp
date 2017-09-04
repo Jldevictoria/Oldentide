@@ -17,7 +17,7 @@
 typedef struct {
     PTYPE packetType;
     int32_t packetId;
-    int32_t sessionId;
+    std::string sessionId;
     std::string my_str;
     // Need to designate the values for messagepack
     MSGPACK_DEFINE(packetType, packetId, sessionId, my_str);

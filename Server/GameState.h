@@ -9,6 +9,7 @@
 #ifndef OLDENTIDE_GAMESTATE_H
 #define OLDENTIDE_GAMESTATE_H
 
+#include "Account.h"
 #include "Npc.h"
 #include "Player.h"
 #include "SQLConnector.h"
@@ -23,14 +24,14 @@ class GameState{
     public:
         GameState(Server * server, SQLConnector * sql);
         ~GameState();
-        bool VerifySession(int sessionId);
-        bool VerifyActiveSession(int sessionId);
-        void DisconnectSession(int sessionId);
-        void PlayerCommand(std::string command, int sessionId);
-        void SelectPlayer(int sessionId);
-        int GenerateSession(int sessionId);
-        void SetSessionAccountName(char * accountName, int sessionId);
-        std::string GetSessionAccountName(int sessionId);
+        bool VerifySession(std::string sessionId);
+        bool VerifyActiveSession(std::string sessionId);
+        void DisconnectSession(std::string sessionId);
+        void PlayerCommand(std::string command, std::string sessionId);
+        void SelectPlayer(std::string sessionId);
+
+        void SetSessionAccountName(char * accountName, std::string sessionId);
+        std::string GetSessionAccountName(std::string sessionId);
         std::set<Player> getPlayers();
         std::set<Npc> getNPCs();
 
@@ -39,9 +40,7 @@ class GameState{
         Server * server;
         std::set<Player> players;
         std::set<Npc> npcs;
-        std::set<int> sessions;
-        std::set<int> activeSessions;
-        std::map<int, std::string> sessionAccounts;
+        std::map<std::string, std::string> sessionAccounts;
         int curSession;
         //Player ReadPlayer(std::string name);
         void StorePlayer(std::string name);

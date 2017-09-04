@@ -195,16 +195,16 @@ int Server::GetPacketQueueSize() {
     return size;
 }
 
-void Server::BroadcastToConnections(std::string msg, std::string user){
+void Server::BroadcastToConnections(std::string msg, std::string fromUserSessionId){
     // For each connected client, send a SendServerCommand packet!
     bool isAdmin = false;
     std::string broadcast;
-    if(user == "admin"){
+    if(fromUserSessionId == "admin"){
         isAdmin = true;
         broadcast = ">>>BROADCAST Oldentide Admin: " + msg + " <<<";
     }
     else {
-        broadcast = ">>>BROADCAST Client " + user + ": " + msg + " <<<";
+        broadcast = ">>>BROADCAST Client " + fromUserSessionId + ": " + msg + " <<<";
         // Print the broadcast so the server admin can see it as well
         std::cout << broadcast << std::endl;
     }
@@ -212,9 +212,9 @@ void Server::BroadcastToConnections(std::string msg, std::string user){
 
 
     std::lock_guard<std::mutex> lk(activeConnectionsMutex);
-    for (std::map<int, sockaddr_in>::iterator it = activeConnections.begin(); it != activeConnections.end(); ++it){
+    for (std::map<std::string, sockaddr_in>::iterator it = activeConnections.begin(); it != activeConnections.end(); ++it){
         // Don't broadcast to the originator of the message
-        if(!isAdmin && it->first == std::stoi(user)){
+        if(!isAdmin && it->first == fromUserSessionId){
             continue;
         }
         // std::cout << it->first;
@@ -230,40 +230,32 @@ void Server::BroadcastToConnections(std::string msg, std::string user){
 }
 
 
-void Server::SendMessageToConnection(std::string msg, std::string fromUser, std::string toUser){
+void Server::SendMessageToConnection(std::string msg, std::string fromUserSessionId, std::string toUserSessionId){
     bool isAdmin = false;
     std::string formattedMsg;
 
     // Format the message
-    if(fromUser == "admin"){
+    if(fromUserSessionId == "admin"){
         formattedMsg = ">>>MESSAGE Oldentide Admin: " + msg + " <<<";
     }
     else {
-        formattedMsg = ">>>MESSAGE Client " + fromUser + ": " + msg + " <<<";
+        formattedMsg = ">>>MESSAGE Client " + fromUserSessionId + ": " + msg + " <<<";
     }
 
     // Figure out who to send the message to
-    if(toUser == "admin"){
+    if(toUserSessionId == "admin"){
         // If message is sent to the admin, simply print to the admin shell
         isAdmin = true;
         std::cout << formattedMsg << std::endl;
     }
     else {
         // user should be an int
-        int sessionId;
-        try {
-            sessionId = std::stoi(toUser);
-        } catch (const std::exception& e) {
-            std::string err("Failed to convert '" + toUser + "'' to a valid sessionId! Ignoring SendMessageToConnection() request from '" + fromUser + "'");
-            std::cout << err << std::endl;
-            // utils::SendErrorTo(sockfd, err, client);
-            return;
-        }
+        std::string sessionId = toUserSessionId;
 
         std::lock_guard<std::mutex> lk(activeConnectionsMutex);
-        std::map<int, sockaddr_in>::iterator connection = activeConnections.find(sessionId);
+        std::map<std::string, sockaddr_in>::iterator connection = activeConnections.find(sessionId);
         if(connection == activeConnections.end()) {
-            std::cout << "Could not deliver message to session '" << toUser << ": does not exist" << std::endl;
+            std::cout << "Could not deliver message to session '" << toUserSessionId << ": does not exist" << std::endl;
             // TODO: Send "could not deliver" error message?
             // utils::SendErrorTo(sockfd, err, client);
             return;
@@ -332,19 +324,20 @@ void Server::ConnectHandler(msgpack::object_handle * deserialized_data, sockaddr
         return;
     }
 
+    // Check to make sure the given session exists
+    if (!gameState->VerifySession(packet.sessionId)) {
+        utils::SendErrorTo(sockfd, std::string("Failed to convert/cast msgpack object"), client);
+        return;
+    }
 
-    // Generate the new sessionId
-    gameStateMutex.lock();
-    int newSession = gameState->GenerateSession(packet.sessionId);
-    gameStateMutex.unlock();
     // Save a copy of the connection information
     activeConnectionsMutex.lock();
-    activeConnections[newSession] = *client;
+    activeConnections[packet.sessionId] = *client;
     activeConnectionsMutex.unlock();
     // TODO: Figure out a way to disconnect clients if unresponsive
 
     packets::Connect returnPacket;
-    returnPacket.sessionId = newSession;
+    returnPacket.sessionId = packet.sessionId;
     returnPacket.packetId = 0;
     // Use MessagePack to serialize data
     std::stringstream buffer;
@@ -352,6 +345,8 @@ void Server::ConnectHandler(msgpack::object_handle * deserialized_data, sockaddr
 
     // Send the packet
     utils::SendDataTo(sockfd, &buffer, packets::CONNECT, client);
+
+    // TODO: Sending gamestate to connected client
 
     std::cout << "\nNew connection started, session id " << returnPacket.sessionId << " sent to client!" << std::endl;
 }

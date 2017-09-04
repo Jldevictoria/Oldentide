@@ -9,7 +9,7 @@ echo "Restoring database now..."
 sqlite3 Oldentide.db <<EOF
 .headers on
 .mode csv
-.import accounts.bac accounts
+.import accounts_backup.csv accounts
 .quit
 EOF
 echo "Accounts Restored."
@@ -17,7 +17,7 @@ echo "Accounts Restored."
 sqlite3 Oldentide.db <<EOF
 .headers on
 .mode csv
-.import players.bac players
+.import players_backup.csv players
 .quit
 EOF
 echo "Players Restored."
@@ -25,7 +25,7 @@ echo "Players Restored."
 sqlite3 Oldentide.db <<EOF
 .headers on
 .mode csv
-.import npcs.bac npcs
+.import npcs_backup.csv npcs
 .quit
 EOF
 echo "NPCs Restored."
@@ -33,8 +33,7 @@ echo "NPCs Restored."
 sqlite3 Oldentide.db <<EOF
 .headers on
 .mode csv
-.import items.bac items
+.import items_backup.csv items
 .quit
 EOF
 echo "Items Restored."
-

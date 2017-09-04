@@ -6,6 +6,7 @@
 #ifndef OLDENTIDE_SQLCONNECTOR_H
 #define OLDENTIDE_SQLCONNECTOR_H
 
+#include "Account.h"
 #include "Player.h"
 #include "Npc.h"
 #include <string>
@@ -20,6 +21,7 @@ class SQLConnector{
         int Execute(std::string cmd);
         bool InsertAccount(char *, char *, char *);
         bool InsertPlayer(Player newPlayer);
+        Account GetAccountForSession(std::string sessionId);
         void ListAccounts();
         std::vector<std::string> GetPlayerList(std::string account);
         std::set<Npc> PopulateNpcList();
