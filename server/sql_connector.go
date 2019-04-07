@@ -48,6 +48,42 @@ func getAccountnameFromVerifyKey(k string) string {
 	return accountname
 }
 
+func getSaltFromAccount(account string) string {
+	rows, err := db.Query("SELECT salt FROM accounts WHERE accountname=?", account)
+	shared.IfErrPrintErr(err)
+	var salt string = ""
+	if rows != nil {
+		for rows.Next() {
+			rows.Scan(&salt)
+		}
+	}
+	rows.Close()
+	return salt
+}
+
+func getHashFromAccount(account string) string {
+	rows, err := db.Query("SELECT hash FROM accounts WHERE accountname=?", account)
+	shared.IfErrPrintErr(err)
+	var hash string = ""
+	if rows != nil {
+		for rows.Next() {
+			rows.Scan(&hash)
+		}
+	}
+	rows.Close()
+	return hash
+}
+
+func setSessionId(account string, session int) bool {
+	update, err := db.Prepare("UPDATE accounts SET gamesession=? WHERE accountname=?")
+	_, err = update.Exec(session, account)
+	if err == nil {
+		return true
+	} else {
+		return false
+	}
+}
+
 func activateAccount(a string) bool {
 	update, err := db.Prepare("UPDATE accounts SET valid=? WHERE accountname=?")
 	_, err = update.Exec("1", a)
@@ -111,6 +147,18 @@ func foundInRows(rows *sql.Rows, err error) bool {
 func pullPcs() []shared.Pc {
 	rows, err := db.Query("Select * FROM players")
 	defer rows.Close()
+	shared.CheckErr(err)
+	return pcRowsToStruct(rows)
+}
+
+func getPlayers(account string) []shared.Pc {
+	rows, err := db.Query("Select * FROM players WHERE account=?", account)
+	defer rows.Close()
+	shared.CheckErr(err)
+	return pcRowsToStruct(rows)
+}
+
+func pcRowsToStruct(rows * sql.Rows) []shared.Pc {
 	var pcs []shared.Pc
 	for rows.Next() {
 		var pc shared.Pc
@@ -198,6 +246,9 @@ func pullPcs() []shared.Pc {
 			&pc.Legs,
 			&pc.Feet,
 			&pc.Cloak,
+			&pc.Necklace,
+			&pc.Ringone,
+			&pc.Ringtwo,
 			&pc.Righthand,
 			&pc.Lefthand,
 			&pc.Zone,
@@ -493,7 +544,7 @@ func playerFirstNameTaken(player_firstname string) bool {
 
 func addNewPlayer(player shared.Pc) {
 	// Need to add this...
-	ins, err := db.Prepare("INSERT INTO players(account_id, firstname, lastname, guild, race, gender, face, skin, profession, alive, plevel, dp, hp, maxhp, bp, maxbp, mp, maxmp, ep, maxep, strength, constitution, intelligence, dexterity, axe, dagger, unarmed, hammer, polearm, spear, staff, sword, archery, crossbow, sling, thrown, armor, dualweapon, shield, bardic, conjuring, druidic, illusion, necromancy, sorcery, shamanic, spellcraft, summoning, focus, armorsmithing, tailoring, fletching, weaponsmithing, alchemy, lapidary, calligraphy, enchanting, herbalism, hunting, mining, bargaining, camping, firstaid, lore, picklocks, scouting, search, stealth, traps, aeolandis, hieroform, highgundis, oldpraxic, praxic, runic, head, chest, arms, hands, legs, feet, cloak, necklace, ringone, ringtwo, righthand, lefthand, zone, x, y, z, direction) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+	ins, err := db.Prepare("INSERT INTO players(account_id, firstname, lastname, guild, race, gender, face, skin, profession, alive, level, dp, hp, maxhp, bp, maxbp, mp, maxmp, ep, maxep, strength, constitution, intelligence, dexterity, axe, dagger, unarmed, hammer, polearm, spear, staff, sword, archery, crossbow, sling, thrown, armor, dualweapon, shield, bardic, conjuring, druidic, illusion, necromancy, sorcery, shamanic, spellcraft, summoning, focus, armorsmithing, tailoring, fletching, weaponsmithing, alchemy, lapidary, calligraphy, enchanting, herbalism, hunting, mining, bargaining, camping, firstaid, lore, picklocks, scouting, search, stealth, traps, aeolandis, hieroform, highgundis, oldpraxic, praxic, runic, head, chest, arms, hands, legs, feet, cloak, necklace, ringone, ringtwo, righthand, lefthand, zone, x, y, z, direction) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	shared.CheckErr(err)
 	// Try to populate and execute an SQL statment.
 	_, err = ins.Exec(

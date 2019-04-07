@@ -8,23 +8,25 @@ package main
 import (
 	"fmt"
 	"github.com/g3n/engine/gui"
+	"github.com/g3n/engine/text"
 	"github.com/g3n/engine/math32"
 	"github.com/g3n/engine/window"
+	"Oldentide/shared"
 )
+// Colors:
+var	interface_style_accent_0 = math32.Color4{0.22, 0.29, 0.29, 1.0}
+var interface_style_brown_0 = math32.Color4{0.51, 0.40, 0.34, 1.0}
+var interface_style_brown_1 = math32.Color4{0.47, 0.35, 0.20, 1.0}
+var interface_style_brown_2 = math32.Color4{0.30, 0.23, 0.18, 1.0}
+var interface_style_brown_3 = math32.Color4{0.19, 0.13, 0.09, 1.0}
+var interface_style_brown_4 = math32.Color4{0.31, 0.20, 0.12, 1.0}
+var color_warning = math32.Color4{1.0, 1.0, 0.5, 1.0}
+var color_black = math32.Color4{0, 0, 0, 1.0}
 
 // SetupGui creates all user interface elements
 func (ogs *OldentideClientGamestate) SetupGui(width, height int) {
 	log.Debug("Creating GUI...")
 	var err error
-
-	// Colors:
-	//interface_style_brown_0 := math32.Color4{0.51, 0.40, 0.34, 1.0}
-	//interface_style_brown_1 := math32.Color4{0.47, 0.35, 0.20, 1.0}
-	interface_style_brown_2 := math32.Color4{0.30, 0.23, 0.18, 1.0}
-	//interface_style_brown_3 := math32.Color4{0.19, 0.13, 0.09, 1.0}
-	//interface_style_brown_4 := math32.Color4{0.31, 0.20, 0.12, 1.0}
-
-	//interface_style_accent_0 := math32.Color4{0.22, 0.29, 0.29, 1.0}
 
 	// Color Styles:
 	//ss := gui.StyleDefault().Slider
@@ -44,11 +46,24 @@ func (ogs *OldentideClientGamestate) SetupGui(width, height int) {
 	ogs.login_menu.SetLayout(h_layout)
 	ogs.login_menu.SetColor4(&interface_style_brown_2)
 	ogs.login_menu.SetBorders(3, 3, 3, 3)
-	ogs.login_menu.SetBordersColor4(&math32.Color4{0, 0, 0, 1.0})
+	ogs.login_menu.SetBordersColor4(&color_black)
 	ogs.root.Subscribe(gui.OnResize, func(evname string, ev interface{}) {
 		ogs.login_menu.SetPositionX((ogs.root.Width() - ogs.login_menu.Width()) / 2)
 		ogs.login_menu.SetPositionY((ogs.root.Height() - ogs.login_menu.Height()) / 2)
 	})
+
+	// Audio Control - Slider
+	audio_control := CreateAudioControl(ogs.loginMusicPlayer.Gain())
+	audio_control.Subscribe(gui.OnMouseUp, func (name string, ev interface{}) {
+		ogs.loginMusicPlayer.SetGain(audio_control.Value())
+	})
+	audio_control.Subscribe(gui.OnScroll, func (name string, ev interface{}) {
+		ogs.loginMusicPlayer.SetGain(audio_control.Value())
+	})
+	ogs.root.Add(audio_control)
+
+	// User Dialog Box
+	ogs.user_dialog = CreateUserMsgDialog(ogs.font)
 
 	login_left := gui.NewPanel(300, 300)
 	login_left.SetLayout(v_layout)
@@ -102,7 +117,6 @@ func (ogs *OldentideClientGamestate) SetupGui(width, height int) {
 	ogs.login_login_button.Label.SetFontSize(16)
 	ogs.login_login_button.Subscribe(gui.OnClick, func(name string, ev interface{}) {
 		fmt.Println("Login button was pressed.")
-		// TODO add some basic checking here to make sure it could be a possible account name and password?
 		ogs.Login()
 	})
 	login_buttons.Add(ogs.login_login_button)
@@ -145,7 +159,7 @@ func (ogs *OldentideClientGamestate) SetupGui(width, height int) {
 	ogs.login_process.SetLayout(h_layout)
 	ogs.login_process.SetColor4(&interface_style_brown_2)
 	ogs.login_process.SetBorders(3, 3, 3, 3)
-	ogs.login_process.SetBordersColor4(&math32.Color4{0, 0, 0, 1.0})
+	ogs.login_process.SetBordersColor4(&color_black)
 	ogs.root.Subscribe(gui.OnResize, func(evname string, ev interface{}) {
 		ogs.login_process.SetPositionX((ogs.root.Width() - ogs.login_process.Width()) / 2)
 		ogs.login_process.SetPositionY((ogs.root.Height() - ogs.login_process.Height()) / 2)
@@ -172,7 +186,7 @@ func (ogs *OldentideClientGamestate) SetupGui(width, height int) {
 	ogs.cs_menu.SetLayout(v_layout)
 	ogs.cs_menu.SetColor4(&interface_style_brown_2)
 	ogs.cs_menu.SetBorders(3, 3, 3, 3)
-	ogs.cs_menu.SetBordersColor4(&math32.Color4{0, 0, 0, 1.0})
+	ogs.cs_menu.SetBordersColor4(&color_black)
 	ogs.root.Subscribe(gui.OnResize, func(evname string, ev interface{}) {
 		ogs.cs_menu.SetPositionX((ogs.root.Width() - ogs.cs_menu.Width()) / 2)
 		ogs.cs_menu.SetPositionY((ogs.root.Height() - ogs.cs_menu.Height()) / 2)
@@ -262,7 +276,7 @@ func (ogs *OldentideClientGamestate) SetupGui(width, height int) {
 	ogs.cc_physical_menu.SetLayout(v_layout)
 	ogs.cc_physical_menu.SetColor4(&interface_style_brown_2)
 	ogs.cc_physical_menu.SetBorders(3, 3, 3, 3)
-	ogs.cc_physical_menu.SetBordersColor4(&math32.Color4{0, 0, 0, 1.0})
+	ogs.cc_physical_menu.SetBordersColor4(&color_black)
 	ogs.root.Subscribe(gui.OnResize, func(evname string, ev interface{}) {
 		ogs.cc_physical_menu.SetPositionX((ogs.root.Width() - ogs.cc_physical_menu.Width()) / 2)
 		ogs.cc_physical_menu.SetPositionY((ogs.root.Height() - ogs.cc_physical_menu.Height()) / 2)
@@ -385,7 +399,7 @@ func (ogs *OldentideClientGamestate) SetupGui(width, height int) {
 		fmt.Println("Gnome race selected")
 		ogs.new_character_race = "Gnome"
 	})
-	ogs.cc_physical_leshy_button, err = gui.NewImageButton(ogs.assets_dir + "/Interface/Leshy.png")
+	ogs.cc_physical_leshy_button, err = gui.NewImageButton(ogs.assets_dir + "/Interface/leshy.png")
 	checkErr(err)
 	ogs.cc_physical_leshy_button.Subscribe(gui.OnClick, func(name string, ev interface{}) {
 		fmt.Println("Leshy race selected")
@@ -419,7 +433,7 @@ func (ogs *OldentideClientGamestate) SetupGui(width, height int) {
 	cc_physical_preview_bar.SetLayout(v_layout)
 	cc_physical_preview_bar.SetColor4(&math32.Color4{0.202, 0.188, 0.179, 1.0})
 	cc_physical_preview_bar.SetBorders(2, 2, 2, 2)
-	cc_physical_preview_bar.SetBordersColor4(&math32.Color4{0, 0, 0, 1.0})
+	cc_physical_preview_bar.SetBordersColor4(&color_black)
 	cc_physical_main_bar.Add(cc_physical_preview_bar)
 
 	ogs.cc_physical_menu.Add(cc_physical_main_bar)
@@ -444,7 +458,6 @@ func (ogs *OldentideClientGamestate) SetupGui(width, height int) {
 	ogs.cc_physical_next_button = gui.NewButton("Next")
 	ogs.cc_physical_next_button.Subscribe(gui.OnClick, func(name string, ev interface{}) {
 		fmt.Println("cc physical next button was pressed.")
-		// TODO Add in client side check to make sure the names are allowed. (3-20 letters, alphabetic)
 		ogs.new_character_firstname = ogs.cc_physical_first_name.Text()
 		ogs.new_character_lastname = ogs.cc_physical_last_name.Text()
 		fmt.Println(ogs.new_character_firstname,
@@ -453,6 +466,10 @@ func (ogs *OldentideClientGamestate) SetupGui(width, height int) {
 			ogs.new_character_race,
 			ogs.new_character_hair,
 			ogs.new_character_skin)
+		// Check that physical stats are valid
+		if !ValidateCharacterPhysical(ogs) {
+			return;
+		}
 		ogs.root.Remove(ogs.cc_physical_menu)
 		ogs.cc_physical_menu.SetEnabled(false)
 		ogs.root.Add(ogs.cc_points_menu)
@@ -466,7 +483,7 @@ func (ogs *OldentideClientGamestate) SetupGui(width, height int) {
 	ogs.cc_points_menu.SetLayout(v_layout)
 	ogs.cc_points_menu.SetColor4(&interface_style_brown_2)
 	ogs.cc_points_menu.SetBorders(3, 3, 3, 3)
-	ogs.cc_points_menu.SetBordersColor4(&math32.Color4{0, 0, 0, 1.0})
+	ogs.cc_points_menu.SetBordersColor4(&color_black)
 	ogs.root.Subscribe(gui.OnResize, func(evname string, ev interface{}) {
 		ogs.cc_points_menu.SetPositionX((ogs.root.Width() - ogs.cc_points_menu.Width()) / 2)
 		ogs.cc_points_menu.SetPositionY((ogs.root.Height() - ogs.cc_points_menu.Height()) / 2)
@@ -485,10 +502,10 @@ func (ogs *OldentideClientGamestate) SetupGui(width, height int) {
 	ogs.cc_points_back_button = gui.NewButton("Back")
 	ogs.cc_points_back_button.Subscribe(gui.OnClick, func(name string, ev interface{}) {
 		fmt.Println("cc points back button was pressed.")
-		//ogs.root.Remove(ogs.cc_physical_menu)
-		//ogs.cc_physical_menu.SetEnabled(false)
-		//ogs.root.Add(ogs.cs_menu)
-		//ogs.cs_menu.SetEnabled(true)
+		ogs.root.Remove(ogs.cc_points_menu)
+		ogs.cc_points_menu.SetEnabled(false)
+		ogs.root.Add(ogs.cc_physical_menu)
+		ogs.cc_physical_menu.SetEnabled(true)
 	})
 	cc_points_footer.Add(ogs.cc_points_back_button)
 	ogs.cc_points_quit_button = gui.NewButton("Quit")
@@ -502,7 +519,12 @@ func (ogs *OldentideClientGamestate) SetupGui(width, height int) {
 		fmt.Println("cc points finish button was pressed.")
 		// TODO Double check everything on the client side, then ask the server to try to create this character.
 		// TODO if it doesn't work, throw an error.
-		ogs.CreateCharacter()
+		ogs.CreateCharacter(
+			ogs.new_character_firstname,
+			ogs.new_character_lastname,
+			ogs.new_character_sex,
+			ogs.new_character_race,
+			ogs.new_character_skin)
 		ogs.root.Remove(ogs.cc_points_menu)
 		ogs.cc_points_menu.SetEnabled(false)
 		ogs.root.Add(ogs.cs_menu)
@@ -518,4 +540,40 @@ func (ogs *OldentideClientGamestate) SetupGui(width, height int) {
 	ogs.root.Dispatch(gui.OnResize, nil)
 
 	log.Debug("Done creating GUI.")
+}
+
+func CreateUserMsgDialog(font *text.Font) *gui.Label {
+	el := gui.NewLabelWithFont("", font)
+	el.SetBgColor4(&color_warning)
+	el.SetColor4(&color_black)
+	el.SetBorders(3, 3, 3, 3)
+	el.SetFontSize(32.0)
+	// Set DPI ?
+	// el.SetFontDPI()
+	el.SetBordersColor4(&color_black)
+	return el
+}
+
+// Don't let user click NEXT unless stats are valid
+func ValidateCharacterPhysical(ogs *OldentideClientGamestate) bool {
+	if !shared.ValidateName(ogs.new_character_firstname) {
+		ogs.UserMsg("First name must be 3-20 alphabetic characters")
+		return false
+	}
+
+	if !shared.ValidateName(ogs.new_character_lastname) {
+		ogs.UserMsg("Last name must be 3-20 alphabetic characters")
+		return false
+	}
+
+	return true
+}
+
+func CreateAudioControl(initial_gain float32) *gui.Slider {
+	el := gui.NewVSlider(0, 100)
+	// The width will auto-expand to fit text
+	el.SetText("Volume")
+	// Set the audio control to an initial volume
+	el.SetValue(initial_gain)
+	return el
 }

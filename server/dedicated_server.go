@@ -32,6 +32,7 @@ var email string
 var epass string
 var eauth smtp.Auth
 var db *sql.DB
+var db_path string
 
 func init() {
 	flag.IntVar(&gport, "gport", 0, "Port used for dedicated game server.")
@@ -40,6 +41,7 @@ func init() {
 	flag.StringVar(&webadd, "webadd", "", "Public website root address where accounts will be created.")
 	flag.StringVar(&email, "email", "", "Gmail email address used to send verification emails.")
 	flag.StringVar(&epass, "epass", "", "Gmail email password used to send verification emails.")
+	flag.StringVar(&db_path, "db", "../../../Server/db/Oldentide.db", "Path to Oldentide.db")
 	rand.Seed(time.Now().UTC().UnixNano())
 }
 
@@ -84,7 +86,7 @@ func main() {
 	// Opening database.
 	// --------------------------------------------------------------------------------------------
 
-	db, err = sql.Open("sqlite3", "../../../Server/db/Oldentide.db")
+	db, err = sql.Open("sqlite3", db_path)
 	shared.CheckErr(err)
 	fmt.Println("* Database connected.\n")
 

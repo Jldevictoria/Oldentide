@@ -20,21 +20,25 @@ import (
 	"github.com/g3n/engine/gui"
 	"github.com/g3n/engine/light"
 	_ "github.com/g3n/engine/loader/obj"
-	_ "github.com/g3n/engine/material"
+	"github.com/g3n/engine/material"
+	"github.com/g3n/engine/geometry"
 	"github.com/g3n/engine/math32"
 	"github.com/g3n/engine/renderer"
 	"github.com/g3n/engine/text"
 	"github.com/g3n/engine/util/logger"
 	"github.com/g3n/engine/window"
-	_ "io/ioutil"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
-	_ "strconv"
+	"strconv"
 	"strings"
 	"time"
+	"Oldentide/shared"
+	"net"
+	"github.com/vmihailenco/msgpack"
 )
 
 var log *logger.Logger
@@ -72,6 +76,7 @@ type OldentideClientGamestate struct {
 
 	// Gui components
 	root                        *gui.Root
+	user_dialog                 *gui.Label
 	login_menu                  *gui.Panel
 	login_username              *gui.Edit
 	login_password_edit         *gui.Edit
@@ -122,6 +127,7 @@ type OldentideClientGamestate struct {
 	assets_dir                 string
 	cursor                     int
 	login_password             string
+	session_id                 int
 	client_game_state          uint8
 	new_character_firstname    string
 	new_character_lastname     string
@@ -140,6 +146,32 @@ func checkErr(err error) {
 	}
 }
 
+func (ogs *OldentideClientGamestate) UserMsg(msg string) {
+	fmt.Println(msg)
+	ogs.user_dialog.SetText(msg)
+
+	// Center message horizontally
+	if ogs.user_dialog.Width() < ogs.root.Width() {
+		ogs.user_dialog.SetPositionX((ogs.root.Width() - ogs.user_dialog.Width()) / 2)
+	} else {
+		fmt.Println("UserMsg is too large to fit on the screen.")
+		ogs.user_dialog.SetPositionX(0)
+	}
+
+	ogs.user_dialog.SetEnabled(true)
+	ogs.root.Add(ogs.user_dialog)
+
+	// TODO: Multiple messages will interfere with each other, so have new
+	// msg cancel old message timeout
+	go func() {
+		time.Sleep(5 * time.Second)
+		if ogs.user_dialog.Enabled() {
+			ogs.user_dialog.SetEnabled(false)
+			ogs.root.Remove(ogs.user_dialog)
+		}
+	}()
+}
+
 func (ogs *OldentideClientGamestate) UpdateLoginStatus(pct float32, login_step string) {
 	ogs.login_process_slider.SetValue(pct)
 	ogs.login_process_slider.SetText(fmt.Sprintf("%3.0f", ogs.login_process_slider.Value()*100))
@@ -148,6 +180,13 @@ func (ogs *OldentideClientGamestate) UpdateLoginStatus(pct float32, login_step s
 
 func (ogs *OldentideClientGamestate) Login() {
 	if ogs.client_game_state != LOGIN_SCREEN {
+		return
+	}
+
+	username := ogs.login_username.Text()
+
+	if !shared.ValidateUsername(username) {
+		ogs.UserMsg("Username must be 3-30 alphanumeric characters")
 		return
 	}
 
@@ -161,7 +200,7 @@ func (ogs *OldentideClientGamestate) Login() {
 
 	ogs.UpdateLoginStatus(float32(step)/float32(steps), "Extracting Credentials")
 	step += 1
-	fmt.Println("Username: ", ogs.login_username.Text())
+	fmt.Println("Username: ", username)
 	fmt.Println("Password: ", ogs.login_password)
 	fmt.Println("Server Address: ", ogs.login_server_address.Text())
 	fmt.Println("Server Web Port: ", ogs.login_server_web_port.Text())
@@ -169,13 +208,43 @@ func (ogs *OldentideClientGamestate) Login() {
 
 	ogs.UpdateLoginStatus(float32(step)/float32(steps), "Checking Login Status")
 	step += 1
-	login_server_page := "http://" + ogs.login_server_address.Text() + ":" + ogs.login_server_web_port.Text() + "/login"
-	resp, err := http.PostForm(login_server_page, url.Values{"username": {ogs.login_username.Text()}, "password": {ogs.login_password}})
+	addrport := ogs.login_server_address.Text() + ":" + ogs.login_server_web_port.Text()
+	login_server_page := "http://" + addrport + "/login"
+	resp, err := http.PostForm(login_server_page, url.Values{"username": {username}, "password": {ogs.login_password}})
 	if err != nil {
 		ogs.root.Add(ogs.login_menu)
 		ogs.login_menu.SetEnabled(true)
 	}
+
+	if resp == nil {
+		msg := fmt.Sprintf("No response from %s", addrport)
+		ogs.UserMsg(msg)
+		return
+	}
+
 	fmt.Println(resp)
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	shared.IfErrPrintErr(err)
+
+	if resp.StatusCode != 200 {
+		ogs.UserMsg("Remote login  for user `"+username+"` failed: "+string(body))
+
+		ogs.root.Remove(ogs.login_process)
+		ogs.login_process.SetEnabled(false)
+		ogs.root.Add(ogs.login_menu)
+		ogs.login_menu.SetEnabled(true)
+		return
+	}
+
+	// fmt.Println("Body", body)
+	// fmt.Println("Body str", string(body))
+	session_id, err := strconv.Atoi(string(body))
+	shared.IfErrPrintErr(err)
+
+	fmt.Println("Login was a success! Session ID = ", session_id)
+	ogs.session_id = session_id
+
 
 	ogs.UpdateLoginStatus(float32(step)/float32(steps), "Saving Account Information")
 	step += 1
@@ -189,10 +258,14 @@ func (ogs *OldentideClientGamestate) Login() {
 	ogs.login_process.SetEnabled(false)
 	ogs.root.Add(ogs.cs_menu)
 	ogs.cs_menu.SetEnabled(true)
-	ogs.cs_characters.Add(gui.NewLabelWithFont("Character_1", ogs.font))
-	ogs.cs_characters.Add(gui.NewLabelWithFont("Character_2", ogs.font))
-	ogs.cs_characters.Add(gui.NewLabelWithFont("Character_3", ogs.font))
-	ogs.cs_characters.Add(gui.NewLabelWithFont("Character_4", ogs.font))
+
+	// Get all the characters for the account
+	characters := ogs.GetCharacters(username)
+	for _, character := range characters {
+		name := fmt.Sprintf("%s %s", character.Firstname, character.Lastname)
+		ogs.cs_characters.Add(gui.NewLabelWithFont(name, ogs.font))
+	}
+
 	stop := false
 	for stop == false {
 		if ogs.cs_characters.Selected() != nil {
@@ -205,8 +278,53 @@ func (ogs *OldentideClientGamestate) Login() {
 	}
 }
 
-func (ogs *OldentideClientGamestate) CreateCharacter() {
-	fmt.Println("Creating Character")
+func (ogs *OldentideClientGamestate) SendPacket(packet interface{}) {
+	// Set up server connection.
+	// Create udp socket description struct.
+	addr := ogs.login_server_address.Text()
+	port := ogs.login_server_game_port.Text()
+	addrport := addr+":"+port
+	fmt.Println("Sending packet to", addrport)
+
+	server_connection, err := net.Dial("udp", addrport)
+	defer server_connection.Close()
+	shared.CheckErr(err)
+
+	pac, err := msgpack.Marshal(packet)
+	shared.CheckErr(err)
+
+	server_connection.Write(pac)
+}
+
+func (ogs *OldentideClientGamestate) CreateCharacter(
+	fname string,
+	lname string,
+	sex string,
+	race string,
+	skin string) {
+	fmt.Println("Creating Character named", fname, lname)
+
+	player := shared.Make_player(
+		fname,
+		lname,
+		sex,
+		race,
+		skin)
+	packet := shared.Create_player_packet{Opcode: shared.CREATEPLAYER, Pc: player}
+	ogs.SendPacket(&packet)
+}
+
+func (ogs *OldentideClientGamestate) GetCharacters(account string) []shared.Pc {
+	// TODO: Convert this to HTTP request instead of UDP?
+	fmt.Println("Querying all characters for account", account)
+	packet := shared.Req_clist_packet{Opcode: shared.REQCLIST, Account: account}
+	ogs.SendPacket(&packet)
+
+	// TODO: Block on packet for character list. In the meantime, bogus data
+	var players []shared.Pc
+	players = append(players, shared.Test_make_player("Michael"))
+	players = append(players, shared.Test_make_player("Joseph"))
+	return players
 }
 
 func (ogs *OldentideClientGamestate) EnterWorld() {
@@ -214,6 +332,21 @@ func (ogs *OldentideClientGamestate) EnterWorld() {
 	ogs.client_game_state = LOADING
 	ogs.orbit_control.Enabled = true
 	ogs.client_game_state = IN_WORLD
+
+	// Create a blue torus and add it to the scene
+	geom := geometry.NewTorus(1, 0.4, 12, 32, math32.Pi*2)
+	mat := material.NewPhong(math32.NewColor("DarkBlue"))
+	torusMesh := graphic.NewMesh(geom, mat)
+	ogs.scene.Add(torusMesh)
+
+	// Add a point light to the scene
+	pointLight := light.NewPoint(&math32.Color{1, 1, 1}, 5.0)
+	pointLight.SetPosition(1, 0, 2)
+	ogs.scene.Add(pointLight)
+
+	// Add an axis helper to the scene
+	axis := graphic.NewAxisHelper(0.5)
+	ogs.scene.Add(axis)
 }
 
 // Quit saves the user data and quits the game
@@ -298,7 +431,7 @@ func (ogs *OldentideClientGamestate) LoadAudio() {
 	// Load each music file you want to use into memory here. (Be a hog, they are small files!)
 	ogs.loginMusicPlayer = createPlayer(ogs.assets_dir + "/Music/Komiku__End_of_the_trip.ogg")
 	ogs.loginMusicPlayer.SetGain(0.05)
-	ogs.loginMusicPlayer.SetLooping(false)
+	ogs.loginMusicPlayer.SetLooping(true)
 }
 
 // Update updates the current level if any
@@ -408,7 +541,7 @@ func main() {
 	paths := strings.Split(rawPaths, ":")
 	for _, j := range paths {
 		// Checks Assets path
-		path := filepath.Join(j, "src/Oldentide/assets")
+		path := filepath.Join(j, "src/Oldentide/Assets")
 		if _, err := os.Stat(path); err == nil {
 			ogs.assets_dir = path
 		}
@@ -507,9 +640,6 @@ func main() {
 	ambLight := light.NewAmbient(&math32.Color{1.0, 1.0, 1.0}, 0.4)
 	ogs.scene.Add(ambLight)
 
-	ogs.SetupGui(width, height)
-	ogs.RenderFrame()
-
 	// Try to open audio libraries
 	err = ogs.LoadAudioLibs()
 	if err != nil {
@@ -519,6 +649,9 @@ func main() {
 		// Queue the music!
 		ogs.loginMusicPlayer.Play()
 	}
+
+	ogs.SetupGui(width, height)
+	ogs.RenderFrame()
 
 	ogs.LoadSkyBox("Blue_Clouds", "jpg")
 	//ogs.LoadSkyBox("Sunny_High_Plains", "jpg")

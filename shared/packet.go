@@ -93,6 +93,11 @@ type Create_player_packet struct {
 	Pc         Pc
 }
 
+type Req_clist_packet struct {
+	Opcode     Opcode
+	Account    string
+}
+
 type Connect_packet struct {
 	Opcode     Opcode
 	Session_id int

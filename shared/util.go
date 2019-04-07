@@ -10,6 +10,7 @@ import (
 	"encoding/base64"
 	"log"
 	"math/rand"
+	"regexp"
 )
 
 // Simple function to check the error status of an operation.
@@ -52,4 +53,17 @@ func GenerateRandomAlnums(n int) string {
 		key[i] = alnums[rand.Intn(len(alnums))]
 	}
 	return string(key)
+}
+
+
+// Validate a character name. 3-20 letters, alphabetic
+var regex_name = regexp.MustCompile("^[a-zA-Z]{3,20}$")
+func ValidateName(name string) bool {
+	return regex_name.MatchString(name)
+}
+
+// Validate a username. 3-30 characters, alphanumeric
+var regex_username = regexp.MustCompile("^[a-zA-Z0-9]{3,20}$")
+func ValidateUsername(name string) bool {
+	return regex_username.MatchString(name)
 }
