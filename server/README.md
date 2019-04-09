@@ -61,10 +61,12 @@ Download necessary dependencies (see above)
 
     go get <...>
 
-cd into the src/server folder and run
+cd into the server folder and run
 
     go install
-    or
+    
+or
+
     go install /path/to/Oldentide/server
 
 If everything built properly, the executable for the server should be found in your $GOBIN directory ($GOPATH/bin)
