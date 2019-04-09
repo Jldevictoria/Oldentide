@@ -22,6 +22,8 @@ All development and testing is currently done on a 64-Bit linux environment.
 [Ubuntu 18.04 LTS][3] is recommended (being used by the primary developer).
 Other distributions should work as long as you can run Go and Git.
 
+This should also run on Windows if you have sqlite and administrator privileges, but I have always tested on Linux.
+
 Compilers
 ------------
 Building *Oldentide Dedicated Server* is consistent with the standard ["Go" build/install tools][4]
@@ -44,17 +46,16 @@ In linux:
 Switch to the db directory and initialize the Oldentide DB:
 
     sqlite3 Oldentide.db < init_db.sql
+    
+Populate the db with values from CSV files:
+
+    chmod +x init_npcs.sh init_item_templates.sh init_profession_templates.sh init_race_templates.sh
     ./init_npcs.sh
+    ./init_item_templates.sh
+    ./init_profession_templates.sh
+    ./init_race_templates.sh
 
-Update your GOPATH to point to our working directory:
-
-    echo "export GOPATH=<path to Oldentide/Server/> >> ~/.bashrc"
-    source ~/.bashrc
-
-or
-
-    export GOPATH=<path to Oldentide/Server/>
-    export GOBIN=$GOPATH/bin
+Make sure you have the Oldentide repository cloned into your $GOPATH/src folder.
 
 Download necessary dependencies (see above)
 
@@ -63,12 +64,14 @@ Download necessary dependencies (see above)
 cd into the src/server folder and run
 
     go install
+    or
+    go install /path/to/Oldentide/server
 
-If everything built properly, cd back to the Oldentide/Server directory and run
+If everything built properly, the executable for the server should be found in your $GOBIN directory ($GOPATH/bin)
 
-    <Oldentide_Base_Path>/Server/bin/dedicated_server <Port>
+You can run the executable, and you will need to pass in several arguments for the game port, web port, web address, if you are using email authentication, then you need to pass in the gmail username and password.
 
-where \<Port\> is the port the server is using.
+I believe the -h flag should pull up the parameter list.
 
 [1]: http://golang.org/ "The Go Language"
 [2]: http://www.oldentide.com/ "Oldentide, a game where you can be anyone!"
