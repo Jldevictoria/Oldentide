@@ -370,7 +370,7 @@ func (ogs *OldentideClientGamestate) LoadSkyBox(skybox_name string, file_format 
 	log.Debug("Creating Skybox...")
 
 	// Load skybox textures.
-	skyboxDir := (ogs.assets_dir + "/Textures/Skyboxes/" + skybox_name + "/")
+	skyboxDir := (ogs.assets_dir + "/textures/skyboxes/" + skybox_name + "/")
 	skyboxData := graphic.SkyboxData{skyboxDir, file_format, [6]string{"px", "nx", "py", "ny", "pz", "nz"}}
 	skybox, err := graphic.NewSkybox(skyboxData)
 	checkErr(err)
@@ -429,7 +429,7 @@ func (ogs *OldentideClientGamestate) LoadAudio() {
 	}
 
 	// Load each music file you want to use into memory here. (Be a hog, they are small files!)
-	ogs.loginMusicPlayer = createPlayer(ogs.assets_dir + "/Music/Komiku__End_of_the_trip.ogg")
+	ogs.loginMusicPlayer = createPlayer(ogs.assets_dir + "/music/Komiku__End_of_the_trip.ogg")
 	ogs.loginMusicPlayer.SetGain(0.05)
 	ogs.loginMusicPlayer.SetLooping(true)
 }
@@ -541,7 +541,7 @@ func main() {
 	paths := strings.Split(rawPaths, ":")
 	for _, j := range paths {
 		// Checks Assets path
-		path := filepath.Join(j, "src/Oldentide/Assets")
+		path := filepath.Join(j, "src/Oldentide/assets")
 		if _, err := os.Stat(path); err == nil {
 			ogs.assets_dir = path
 		}
@@ -564,7 +564,7 @@ func main() {
 	checkErr(err)
 
 	// Set Cursor to Oldentide Cursor
-	ogs.cursor, err = ogs.wmgr.CreateCursor(ogs.assets_dir+"/Interface/OldentideCursor30.png", 0, 0)
+	ogs.cursor, err = ogs.wmgr.CreateCursor(ogs.assets_dir+"/interface/OldentideCursor30.png", 0, 0)
 	if err != nil {
 		fmt.Println("Error creating cursor.")
 		//log.Log().Fatal("Error creating cursor: %s", err)
@@ -572,7 +572,7 @@ func main() {
 	ogs.win.SetCustomCursor(ogs.cursor)
 
 	// Build Font
-	ogs.font, err = text.NewFont(ogs.assets_dir + "/Fonts/Sitka.ttf")
+	ogs.font, err = text.NewFont(ogs.assets_dir + "/fonts/Sitka.ttf")
 	checkErr(err)
 
 	// Speed up a bit by not checking OpenGL errors
