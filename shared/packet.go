@@ -98,6 +98,11 @@ type Req_clist_packet struct {
 	Account    string
 }
 
+type Send_clist_packet struct {
+    Opcode Opcode
+    Characters []string
+}
+
 type Connect_packet struct {
 	Opcode     Opcode
 	Session_id int

@@ -203,12 +203,19 @@ func Handle(RawPacketQueue chan shared.Raw_packet, QuitChan chan bool, rid int) 
 				continue
 			case shared.REQCLIST:
 				fmt.Println("Handling a REQCLIST packet.")
+                var decpac shared.Req_clist_packet
+                err = msgpack.Unmarshal(packet.Payload, &decpac)
+                fmt.Println(decpac)
+                var retpac shared.Send_clist_packet
+                retpac.Opcode = shared.SENDCLIST
+                repac.Characters = getCharacterList(decpac.Account)
+                fmt.Println(retpac)
 				continue
 			case shared.CREATEPLAYER:
 				fmt.Println("Handling a CREATEPLAYER packet.")
-				var cpp shared.Create_player_packet
-				err = msgpack.Unmarshal(packet.Payload, &cpp)
-				fmt.Println(cpp)
+				var decpac shared.Create_player_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				fmt.Println(decpac)
 				// Need to get the account name by session id.
 				account_name := "Jojo"
 				player_name := "Joseph"
@@ -220,8 +227,8 @@ func Handle(RawPacketQueue chan shared.Raw_packet, QuitChan chan bool, rid int) 
 					log.Println("Account tried to create a player whose name was already taken.")
 					continue
 				}
-				if validNewPlayer(cpp.Pc) {
-					addNewPlayer(cpp.Pc)
+				if validNewPlayer(decpac.Pc) {
+					addNewPlayer(decpac.Pc)
 					log.Println("Account <account> created a new player \"<player>\".")
 				} else {
 					log.Println("Account is trying something fraudulent during account creation!")

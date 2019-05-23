@@ -525,8 +525,22 @@ func pushNpcs([]shared.Npc) {
 	fmt.Println("Not yet implemented")
 }
 
+func getCharacterList(account_name string) []string {
+    rows, err := db.Query ("SELECT firstname FROM players INNER JOIN accounts ON players.account_id=accounts.id WHERE accountname=?", account_name)
+    shared.CheckErr(err)
+    defer rows.Close()
+    var account_characters := []string
+    for rows.Next() {
+        var character_name string
+        rows.Scan(&character_name)
+        account_characters = append(account_characters, character_name)
+    }
+    return account_characters
+}
+
+
 func getRemainingPlayerSlots(account_name string, max_player_slots int) int {
-	rows, err := db.Query("Select * FROM players INNER JOIN accounts ON players.account_id=accounts.id WHERE accountname=?", account_name)
+	rows, err := db.Query("SELECT * FROM players INNER JOIN accounts ON players.account_id=accounts.id WHERE accountname=?", account_name)
 	shared.CheckErr(err)
 	defer rows.Close()
 	num_players := max_player_slots
