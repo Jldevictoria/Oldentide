@@ -529,10 +529,11 @@ func getCharacterList(account_name string) []string {
     rows, err := db.Query ("SELECT firstname FROM players INNER JOIN accounts ON players.account_id=accounts.id WHERE accountname=?", account_name)
     shared.CheckErr(err)
     defer rows.Close()
-    var account_characters := []string
+    var account_characters []string
     for rows.Next() {
         var character_name string
-        rows.Scan(&character_name)
+        err = rows.Scan(&character_name)
+        shared.CheckErr(err)
         account_characters = append(account_characters, character_name)
     }
     return account_characters

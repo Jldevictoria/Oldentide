@@ -208,7 +208,7 @@ func Handle(RawPacketQueue chan shared.Raw_packet, QuitChan chan bool, rid int) 
                 fmt.Println(decpac)
                 var retpac shared.Send_clist_packet
                 retpac.Opcode = shared.SENDCLIST
-                repac.Characters = getCharacterList(decpac.Account)
+                retpac.Characters = getCharacterList(decpac.Account)
                 fmt.Println(retpac)
 				continue
 			case shared.CREATEPLAYER:
