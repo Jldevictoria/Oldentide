@@ -11,7 +11,7 @@ cd $(dirname $0)
 
 # Import to sqlite3
 # Import csv data into a temp table, then insert the data into npcs in order to auto-generate the ids
-sqlite3 Oldentide.db <<EOF
+sqlite3 oldentide.db <<EOF
 .mode csv
 DELETE FROM item_templates;
 DROP TABLE IF EXISTS temp_item_templates;

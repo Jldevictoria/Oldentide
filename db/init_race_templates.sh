@@ -11,7 +11,7 @@ cd $(dirname $0)
 
 # Import to sqlite3
 # Import csv data into a temp table, then insert the data into race templates in order to auto-generate the ids
-sqlite3 Oldentide.db <<EOF
+sqlite3 oldentide.db <<EOF
 .mode csv
 DELETE FROM race_templates;
 DROP TABLE IF EXISTS temp_race_templates;

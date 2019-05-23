@@ -41,7 +41,7 @@ func init() {
 	flag.StringVar(&webadd, "webadd", "", "Public website root address where accounts will be created.")
 	flag.StringVar(&email, "email", "", "Gmail email address used to send verification emails.")
 	flag.StringVar(&epass, "epass", "", "Gmail email password used to send verification emails.")
-	flag.StringVar(&db_path, "db", "../../../Server/db/Oldentide.db", "Path to Oldentide.db")
+	flag.StringVar(&db_path, "db", "../../../server/db/oldentide.db", "Path to oldentide.db")
 	rand.Seed(time.Now().UTC().UnixNano())
 }
 
