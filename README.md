@@ -1,4 +1,4 @@
-![Oldentide Logo](Concepts/Project/Logo_1.png?raw=true "Oldentide")
+![Oldentide Logo](concepts/project/Logo_1.png?raw=true "Oldentide")
 
 # Oldentide
 
