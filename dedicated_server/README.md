@@ -4,25 +4,25 @@ The *Oldentide Dedicated Server* is an open source project, built in [Go][1], to
 backend game state for the multiplayer online role-playing game [*Oldentide*][2].  This
 directory contains all of the code necessary to build and run the dedicated server.
 
-The "from scratch" build process breaks down into three main steps, with an additional
+The "from scratch" build process breaks down into five main steps, with an additional
 step used during the development process:
 
-1. Create the database and generate all of the needed tables.
-2. Populate the database with NPC information.
-3. Compile the dedicated server.
-4. Compile the test client. <IP>
+1. Download dependencies.
+2. Clone the repository into your $GOPATH/src/ folder.
+3. Create the database and generate all of the necessary tables.
+4. Populate the database template information. (Races, Professions, Items, and NPCs)
+5. Compile the dedicated server.
+6. Compile the test client. (If needed for debug.)
 
 Requirements
 ------------
-The *Oldentide Dedicated Server* currently supports a Linux development and runtime environment. (Although it should work on Windows with some hacking)
+The *Oldentide Dedicated Server* currently supports a Linux development and runtime environment. (Although it should work on Windows with a little tinkering)
 
 Operating Systems
 ------------
 All development and testing is currently done on a 64-Bit linux environment.
-[Ubuntu 18.04 LTS][3] is recommended (being used by the primary developer).
-Other distributions should work as long as you can run Go and Git.
-
-This should also run on Windows if you have sqlite and administrator privileges, but I have always tested on Linux.
+[Ubuntu 18.04 LTS][3] is what the @jldevictoria is using.
+Other distributions should work as long as you can run Go, SQLite and Git.
 
 Compilers
 ------------
@@ -41,39 +41,85 @@ Dependencies
 
 Server and Test Client Usage
 ------------
-In linux:
+In linux (*assuming you have at least your $GOPATH variable exported*):
 
-Switch to the db directory and initialize the Oldentide DB:
+1. **Download necessary dependencies (see Dependencies above):**
 
-    sqlite3 Oldentide.db < init_db.sql
+    ```
+    sudo apt install --y <...>
+    go get <...>
+    ```
+
+2. **Clone the Oldentide repository into your $GOPATH/src directory:**
+
+    ```
+    cd $GOPATH/src/
+    git clone https://github.com/Jldevictoria/Oldentide.git
+    ```
+
+3. **Change to the db directory and initialize the Oldentide DB (I call it "oldentide.db"):**
+
+    ```
+    cd Oldentide/db/
+    sqlite3 oldentide.db < init_db.sql
+    ```
     
-Populate the db with values from CSV files:
+4. **Populate the db with values from CSV files:**
 
+    ```
     chmod +x init_npcs.sh init_item_templates.sh init_profession_templates.sh init_race_templates.sh
     ./init_npcs.sh
     ./init_item_templates.sh
     ./init_profession_templates.sh
     ./init_race_templates.sh
+    ```
 
-Make sure you have the Oldentide repository cloned into your $GOPATH/src folder.
+5. **Build the Oldentide dedicated server:**
 
-Download necessary dependencies (see above)
+    ```
+    go install Oldentide/dedicated_server
+    ```
 
-    go get <...>
+6. **Build the Oldentide test client:**
 
-cd into the server folder and run
-
-    go install
-    
-or
-
-    go install /path/to/Oldentide/server
+    ```
+    go install Oldentide/test_client
+    ```
 
 If everything built properly, the executable for the server should be found in your $GOBIN directory ($GOPATH/bin)
 
-You can run the executable, and you will need to pass in several arguments for the game port, web port, web address, if you are using email authentication, then you need to pass in the gmail username and password.
+You can run the executable directly, as go compiles to machine code, but you will need to pass in several arguments:
 
-I believe the -h flag should pull up the parameter list.
+* **Game port (-gport=1337)**
+* **Web address (-webadd=http://imp.oldentide.com)**
+* **Web port (-wport=80)**
+
+If you want to use email authentication for new accounts, then you need to pass in a gmail username and password:
+
+* **Gmail username (-email=oldentide@gmail.com)**
+* **Gmail password (-epass=SuPeRsEcReTpAsSwOrD)**
+
+If you placed your game database in a different location than $GOPATH/src/Oldentide/db/oldentide.db, you will need to specify that as well:
+
+* **DB path (-dbpath=/home/coolguy/secret_db_folder/oldentide.db)**
+
+If you run wil the -h flag should pull up the parameter list.
+
+if you passed in all those arguments, the command line for running the server would be:
+
+    ```
+    $GOPATH/bin/dedicated_server -gport=1337 -webadd=http://imp.oldentide.com -wport=80 -email=oldentide@gmail.com -epass=SuPeRsEcReTpAsSwOrD
+    ```
+
+The test client is basically the same as the dedicated server, but you will need to specify the server address and a test case from within test_client.go as well such as:
+
+    ```
+    $GOPATH/bin/test_client -server=imp.oldentide.com -port=1337 -test=2
+    ```
+
+Good luck!
+
+Let me know if this is too cryptic and I can update it.
 
 [1]: http://golang.org/ "The Go Language"
 [2]: http://www.oldentide.com/ "Oldentide, a game where you can be anyone!"
