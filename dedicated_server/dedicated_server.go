@@ -35,6 +35,7 @@ var epass string
 var dbpath string
 var eauth smtp.Auth
 var db *sql.DB
+var packet_count int
 
 func init() {
 	flag.IntVar(&gport, "gport", 0, "Port used for dedicated game server.")
@@ -173,13 +174,14 @@ func main() {
 
 // Places all UDP packets that arrive on the hardware socket into a queue for handling.
 func Collect(connection *net.UDPConn, RawPacketQueue chan shared.Raw_packet, QuitChan chan bool) {
-	for err == nil {
-		buffer := make([]byte, 512) //65507) // Max IPv4 UDP packet size.
+	for {
+		buffer := make([]byte, 32) //512) //65507) // Max IPv4 UDP packet size.
 		n, remote_address, err := connection.ReadFromUDP(buffer)
 		shared.CheckErr(err)
 		RawPacketQueue <- shared.Raw_packet{n, remote_address, buffer}
+		packet_count++
+		fmt.Println(packet_count)
 	}
-	fmt.Println("Collector Exited - ", err)
 }
 
 // Handle all arriving packets based on which opcode they are.
@@ -199,7 +201,7 @@ func Handle(RawPacketQueue chan shared.Raw_packet, QuitChan chan bool, rid int) 
 				fmt.Println("Handling an EMPTY packet.")
 				continue
 			case shared.GENERIC:
-				fmt.Println("Handling a GENERIC packet.")
+				// fmt.Println("Handling a GENERIC packet.")
 				continue
 			case shared.ACK:
 				fmt.Println("Handling an ACK packet.")
@@ -223,8 +225,10 @@ func Handle(RawPacketQueue chan shared.Raw_packet, QuitChan chan bool, rid int) 
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
 				fmt.Println(decpac)
 				// Need to get the account name by session id.
-				account_name := "Jojo"
-				player_name := "Joseph"
+				account_name := "test"
+				player_name := decpac.Pc.Firstname
+				decpac.Pc.Accountid = getAccountIdFromAccountName(account_name)
+				fmt.Println(decpac.Pc.Accountid)
 				if getRemainingPlayerSlots(account_name, 10) == 0 {
 					log.Println("Account tried to create too many players.")
 					continue

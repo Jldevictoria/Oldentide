@@ -551,9 +551,21 @@ func getRemainingPlayerSlots(account_name string, max_player_slots int) int {
 }
 
 func playerFirstNameTaken(player_firstname string) bool {
-	rows, err := db.Query("Select * FROM players WHERE firstname=?", player_firstname)
+	rows, err := db.Query("SELECT * FROM players WHERE firstname=?", player_firstname)
 	shared.CheckErr(err)
 	return foundInRows(rows, err)
+}
+
+func getAccountIdFromAccountName(account_name string) int32 {
+	rows, err := db.Query("SELECT id FROM accounts WHERE accountname=?", account_name)
+	shared.CheckErr(err)
+	defer rows.Close()
+	var account_id int32
+	for rows.Next() {
+		err = rows.Scan(&account_id)
+		shared.CheckErr(err)
+	}
+	return account_id
 }
 
 func addNewPlayer(player shared.Pc) {
