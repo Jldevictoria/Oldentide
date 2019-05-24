@@ -35,3 +35,19 @@
 **A readme for server and website operation is found within the server directory.**<br>
 
 **Please contact me immediately if you see any bugs or want to contribute.  I need help developing the game!**<br>
+
+=================================
+
+## Client Build Instructions (During DEVELOPMENT):
+
+In order to play the Oldentide client you will need to make sure you follow these steps:
+
+1. Install [Git.](https://git-scm.com/)
+2. Install [Go.](https://golang.org/cmd/go/)
+3. [Set your $GOPATH.](https://github.com/golang/go/wiki/SettingGOPATH)
+4. **cd $GOPATH/src/**
+5. **git clone https://github.com/Jldevictoria/Oldentide.git**
+6. **go get -u github.com/g3n/engine/...**
+7. **go get -u github.com/vmihailenco/msgpack**
+7. **go install Oldentide**
+8. The Oldentide executable can be run from your $GOBIN directory ($GOPATH/bin).
