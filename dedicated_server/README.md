@@ -107,15 +107,11 @@ If you run wil the -h flag should pull up the parameter list.
 
 if you passed in all those arguments, the command line for running the server would be:
 
-    ```
     $GOPATH/bin/dedicated_server -gport=1337 -webadd=http://imp.oldentide.com -wport=80 -email=oldentide@gmail.com -epass=SuPeRsEcReTpAsSwOrD
-    ```
 
 The test client is basically the same as the dedicated server, but you will need to specify the server address and a test case from within test_client.go as well such as:
 
-    ```
     $GOPATH/bin/test_client -server=imp.oldentide.com -port=1337 -test=2
-    ```
 
 Good luck!
 
