@@ -17,6 +17,8 @@ import (
 	"net"
 	"net/http"
 	"net/smtp"
+	"os"
+	_ "path/filepath"
 	"runtime"
 	"strconv"
 	"time"
@@ -30,9 +32,9 @@ var everify bool
 var webadd string
 var email string
 var epass string
+var dbpath string
 var eauth smtp.Auth
 var db *sql.DB
-var db_path string
 
 func init() {
 	flag.IntVar(&gport, "gport", 0, "Port used for dedicated game server.")
@@ -41,7 +43,7 @@ func init() {
 	flag.StringVar(&webadd, "webadd", "", "Public website root address where accounts will be created.")
 	flag.StringVar(&email, "email", "", "Gmail email address used to send verification emails.")
 	flag.StringVar(&epass, "epass", "", "Gmail email password used to send verification emails.")
-	flag.StringVar(&db_path, "db", "../../../server/db/oldentide.db", "Path to oldentide.db")
+	flag.StringVar(&dbpath, "dbpath", shared.DefaultGOPATH()+"/src/Oldentide/db/oldentide.db", "Path to oldentide.db")
 	rand.Seed(time.Now().UTC().UnixNano())
 }
 
@@ -57,6 +59,7 @@ func main() {
 	fmt.Println("everify:", everify)
 	fmt.Println("email:", email)
 	fmt.Println("epass:", epass)
+	fmt.Println("dbpath:", dbpath)
 	if gport == 0 {
 		log.Fatal("Please provide a game port with the command line flag -gport=<number>")
 	}
@@ -85,8 +88,11 @@ func main() {
 	// --------------------------------------------------------------------------------------------
 	// Opening database.
 	// --------------------------------------------------------------------------------------------
-
-	db, err = sql.Open("sqlite3", db_path)
+	_, err := os.Stat(dbpath)
+	if err != nil {
+		log.Fatal("Couldn't find a database file at: " + dbpath)
+	}
+	db, err = sql.Open("sqlite3", dbpath)
 	shared.CheckErr(err)
 	fmt.Println("* Database connected.\n")
 
@@ -203,13 +209,13 @@ func Handle(RawPacketQueue chan shared.Raw_packet, QuitChan chan bool, rid int) 
 				continue
 			case shared.REQCLIST:
 				fmt.Println("Handling a REQCLIST packet.")
-                var decpac shared.Req_clist_packet
-                err = msgpack.Unmarshal(packet.Payload, &decpac)
-                fmt.Println(decpac)
-                var retpac shared.Send_clist_packet
-                retpac.Opcode = shared.SENDCLIST
-                retpac.Characters = getCharacterList(decpac.Account)
-                fmt.Println(retpac)
+				var decpac shared.Req_clist_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				fmt.Println(decpac)
+				var retpac shared.Send_clist_packet
+				retpac.Opcode = shared.SENDCLIST
+				retpac.Characters = getCharacterList(decpac.Account)
+				fmt.Println(retpac)
 				continue
 			case shared.CREATEPLAYER:
 				fmt.Println("Handling a CREATEPLAYER packet.")

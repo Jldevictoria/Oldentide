@@ -7,6 +7,7 @@
 package main
 
 import (
+	"Oldentide/shared"
 	"flag"
 	"fmt"
 	"github.com/g3n/engine/audio"
@@ -15,19 +16,21 @@ import (
 	"github.com/g3n/engine/camera"
 	"github.com/g3n/engine/camera/control"
 	"github.com/g3n/engine/core"
+	"github.com/g3n/engine/geometry"
 	"github.com/g3n/engine/gls"
 	"github.com/g3n/engine/graphic"
 	"github.com/g3n/engine/gui"
 	"github.com/g3n/engine/light"
 	_ "github.com/g3n/engine/loader/obj"
 	"github.com/g3n/engine/material"
-	"github.com/g3n/engine/geometry"
 	"github.com/g3n/engine/math32"
 	"github.com/g3n/engine/renderer"
 	"github.com/g3n/engine/text"
 	"github.com/g3n/engine/util/logger"
 	"github.com/g3n/engine/window"
+	"github.com/vmihailenco/msgpack"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -36,9 +39,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"Oldentide/shared"
-	"net"
-	"github.com/vmihailenco/msgpack"
 )
 
 var log *logger.Logger
@@ -228,7 +228,7 @@ func (ogs *OldentideClientGamestate) Login() {
 	shared.IfErrPrintErr(err)
 
 	if resp.StatusCode != 200 {
-		ogs.UserMsg("Remote login  for user `"+username+"` failed: "+string(body))
+		ogs.UserMsg("Remote login  for user `" + username + "` failed: " + string(body))
 
 		ogs.root.Remove(ogs.login_process)
 		ogs.login_process.SetEnabled(false)
@@ -244,7 +244,6 @@ func (ogs *OldentideClientGamestate) Login() {
 
 	fmt.Println("Login was a success! Session ID = ", session_id)
 	ogs.session_id = session_id
-
 
 	ogs.UpdateLoginStatus(float32(step)/float32(steps), "Saving Account Information")
 	step += 1
@@ -283,7 +282,7 @@ func (ogs *OldentideClientGamestate) SendPacket(packet interface{}) {
 	// Create udp socket description struct.
 	addr := ogs.login_server_address.Text()
 	port := ogs.login_server_game_port.Text()
-	addrport := addr+":"+port
+	addrport := addr + ":" + port
 	fmt.Println("Sending packet to", addrport)
 
 	server_connection, err := net.Dial("udp", addrport)

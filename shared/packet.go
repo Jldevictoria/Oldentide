@@ -94,13 +94,13 @@ type Create_player_packet struct {
 }
 
 type Req_clist_packet struct {
-	Opcode     Opcode
-	Account    string
+	Opcode  Opcode
+	Account string
 }
 
 type Send_clist_packet struct {
-    Opcode Opcode
-    Characters []string
+	Opcode     Opcode
+	Characters []string
 }
 
 type Connect_packet struct {

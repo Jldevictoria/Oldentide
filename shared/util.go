@@ -10,7 +10,10 @@ import (
 	"encoding/base64"
 	"log"
 	"math/rand"
+	"os"
+	"path/filepath"
 	"regexp"
+	"runtime"
 )
 
 // Simple function to check the error status of an operation.
@@ -55,15 +58,35 @@ func GenerateRandomAlnums(n int) string {
 	return string(key)
 }
 
-
 // Validate a character name. 3-20 letters, alphabetic
 var regex_name = regexp.MustCompile("^[a-zA-Z]{3,20}$")
+
 func ValidateName(name string) bool {
 	return regex_name.MatchString(name)
 }
 
 // Validate a username. 3-30 characters, alphanumeric
 var regex_username = regexp.MustCompile("^[a-zA-Z0-9]{3,20}$")
+
 func ValidateUsername(name string) bool {
 	return regex_username.MatchString(name)
+}
+
+func DefaultGOPATH() string {
+	env := "HOME"
+	if runtime.GOOS == "windows" {
+		env = "USERPROFILE"
+	} else if runtime.GOOS == "plan9" {
+		env = "home"
+	}
+	if home := os.Getenv(env); home != "" {
+		def := filepath.Join(home, "go")
+		if filepath.Clean(def) == filepath.Clean(runtime.GOROOT()) {
+			// Don't set the default GOPATH to GOROOT,
+			// as that will trigger warnings from the go tool.
+			return ""
+		}
+		return def
+	}
+	return ""
 }

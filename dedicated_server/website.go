@@ -150,7 +150,8 @@ func verifyPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-var session_id = 0;
+var session_id = 0
+
 // Web handler that handles logging in a player and returning them a sessionID.
 func loginPage(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
@@ -166,7 +167,7 @@ func loginPage(w http.ResponseWriter, r *http.Request) {
 	if !accountExists(username) {
 		fmt.Println("username dne")
 		http.Error(w, "Username does not exist", http.StatusBadRequest)
-		return;
+		return
 	}
 
 	// Get the salt of the user (the salt is public)

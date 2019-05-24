@@ -6,15 +6,16 @@
 package main
 
 import (
+	"Oldentide/shared"
 	"fmt"
 	"github.com/g3n/engine/gui"
-	"github.com/g3n/engine/text"
 	"github.com/g3n/engine/math32"
+	"github.com/g3n/engine/text"
 	"github.com/g3n/engine/window"
-	"Oldentide/shared"
 )
+
 // Colors:
-var	interface_style_accent_0 = math32.Color4{0.22, 0.29, 0.29, 1.0}
+var interface_style_accent_0 = math32.Color4{0.22, 0.29, 0.29, 1.0}
 var interface_style_brown_0 = math32.Color4{0.51, 0.40, 0.34, 1.0}
 var interface_style_brown_1 = math32.Color4{0.47, 0.35, 0.20, 1.0}
 var interface_style_brown_2 = math32.Color4{0.30, 0.23, 0.18, 1.0}
@@ -54,10 +55,10 @@ func (ogs *OldentideClientGamestate) SetupGui(width, height int) {
 
 	// Audio Control - Slider
 	audio_control := CreateAudioControl(ogs.loginMusicPlayer.Gain())
-	audio_control.Subscribe(gui.OnMouseUp, func (name string, ev interface{}) {
+	audio_control.Subscribe(gui.OnMouseUp, func(name string, ev interface{}) {
 		ogs.loginMusicPlayer.SetGain(audio_control.Value())
 	})
-	audio_control.Subscribe(gui.OnScroll, func (name string, ev interface{}) {
+	audio_control.Subscribe(gui.OnScroll, func(name string, ev interface{}) {
 		ogs.loginMusicPlayer.SetGain(audio_control.Value())
 	})
 	ogs.root.Add(audio_control)
@@ -468,7 +469,7 @@ func (ogs *OldentideClientGamestate) SetupGui(width, height int) {
 			ogs.new_character_skin)
 		// Check that physical stats are valid
 		if !ValidateCharacterPhysical(ogs) {
-			return;
+			return
 		}
 		ogs.root.Remove(ogs.cc_physical_menu)
 		ogs.cc_physical_menu.SetEnabled(false)

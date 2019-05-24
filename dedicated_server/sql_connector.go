@@ -158,7 +158,7 @@ func getPlayers(account string) []shared.Pc {
 	return pcRowsToStruct(rows)
 }
 
-func pcRowsToStruct(rows * sql.Rows) []shared.Pc {
+func pcRowsToStruct(rows *sql.Rows) []shared.Pc {
 	var pcs []shared.Pc
 	for rows.Next() {
 		var pc shared.Pc
@@ -526,19 +526,18 @@ func pushNpcs([]shared.Npc) {
 }
 
 func getCharacterList(account_name string) []string {
-    rows, err := db.Query ("SELECT firstname FROM players INNER JOIN accounts ON players.account_id=accounts.id WHERE accountname=?", account_name)
-    shared.CheckErr(err)
-    defer rows.Close()
-    var account_characters []string
-    for rows.Next() {
-        var character_name string
-        err = rows.Scan(&character_name)
-        shared.CheckErr(err)
-        account_characters = append(account_characters, character_name)
-    }
-    return account_characters
+	rows, err := db.Query("SELECT firstname FROM players INNER JOIN accounts ON players.account_id=accounts.id WHERE accountname=?", account_name)
+	shared.CheckErr(err)
+	defer rows.Close()
+	var account_characters []string
+	for rows.Next() {
+		var character_name string
+		err = rows.Scan(&character_name)
+		shared.CheckErr(err)
+		account_characters = append(account_characters, character_name)
+	}
+	return account_characters
 }
-
 
 func getRemainingPlayerSlots(account_name string, max_player_slots int) int {
 	rows, err := db.Query("SELECT * FROM players INNER JOIN accounts ON players.account_id=accounts.id WHERE accountname=?", account_name)
