@@ -180,7 +180,7 @@ func Collect(connection *net.UDPConn, RawPacketQueue chan shared.Raw_packet, Qui
 		shared.CheckErr(err)
 		RawPacketQueue <- shared.Raw_packet{n, remote_address, buffer}
 		packet_count++
-		fmt.Println(packet_count)
+		fmt.Println("PC:", packet_count)
 	}
 }
 

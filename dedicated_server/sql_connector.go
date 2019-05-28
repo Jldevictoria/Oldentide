@@ -9,6 +9,8 @@ import "Oldentide/shared"
 import "database/sql"
 import "fmt"
 import "log"
+import "math/rand"
+import "strconv"
 
 // Check if the account name is already taken in the database.
 func accountExists(a string) bool {
@@ -74,9 +76,9 @@ func getHashFromAccount(account string) string {
 	return hash
 }
 
-func setSessionId(account string, session int) bool {
+func setSessionId(account string, session_id int64) bool {
 	update, err := db.Prepare("UPDATE accounts SET gamesession=? WHERE accountname=?")
-	_, err = update.Exec(session, account)
+	_, err = update.Exec(session_id, account)
 	if err == nil {
 		return true
 	} else {
@@ -129,6 +131,20 @@ func generateUniqueSalt(n int) string {
 		}
 	}
 	return ""
+}
+
+func generateUniqueSessionId() int64 {
+	findSession := true
+	for findSession {
+		random_session := strconv.FormatInt(rand.Int63(), 10)
+		rows, err := db.Query("SELECT accountname FROM accounts WHERE gamesession='" + random_session + "'")
+		if !foundInRows(rows, err) {
+			session_id, err := strconv.ParseInt(random_session, 10, 64)
+			shared.CheckErr(err)
+			return session_id
+		}
+	}
+	return 0
 }
 
 func foundInRows(rows *sql.Rows, err error) bool {

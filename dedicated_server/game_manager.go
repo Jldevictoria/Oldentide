@@ -5,4 +5,6 @@
 
 package main
 
-// var players = make(map[string]Player)
+type Session int64
+
+//var players = make(map[int64]Player)

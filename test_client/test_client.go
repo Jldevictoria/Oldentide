@@ -88,7 +88,7 @@ func main() {
 		server_connection.Write(reqpac)
 		break
 	case 4: // Say message
-		pac := shared.Say_packet{Opcode: shared.SAYCMD, Session_id: rand.Intn(1000)}
+		pac := shared.Say_cmd_packet{Opcode: shared.SAYCMD, Session_id: rand.Int63()}
 		fmt.Println("Enter say message:")
 		pac.Text, _ = inreader.ReadString('\n')
 		fmt.Println(pac)
@@ -97,7 +97,7 @@ func main() {
 		server_connection.Write(reqpac)
 		break
 	case 5: // Yell message
-		pac := shared.Yell_packet{Opcode: shared.YELLCMD, Session_id: rand.Intn(1000)}
+		pac := shared.Yell_cmd_packet{Opcode: shared.YELLCMD, Session_id: rand.Int63()}
 		fmt.Println("Enter yell message:")
 		pac.Text, _ = inreader.ReadString('\n')
 		reqpac, err := msgpack.Marshal(pac)
@@ -105,7 +105,7 @@ func main() {
 		server_connection.Write(reqpac)
 		break
 	case 6: // Ooc message
-		pac := shared.Ooc_packet{Opcode: shared.OOCCMD, Session_id: rand.Intn(1000)}
+		pac := shared.Ooc_cmd_packet{Opcode: shared.OOCCMD, Session_id: rand.Int63()}
 		fmt.Println("Enter ooc message:")
 		pac.Text, _ = inreader.ReadString('\n')
 		reqpac, err := msgpack.Marshal(pac)
@@ -113,7 +113,7 @@ func main() {
 		server_connection.Write(reqpac)
 		break
 	case 7: // Help message
-		pac := shared.Help_packet{Opcode: shared.HELPCMD, Session_id: rand.Intn(1000)}
+		pac := shared.Help_cmd_packet{Opcode: shared.HELPCMD, Session_id: rand.Int63()}
 		fmt.Println("Enter help message:")
 		pac.Text, _ = inreader.ReadString('\n')
 		reqpac, err := msgpack.Marshal(pac)
@@ -121,7 +121,7 @@ func main() {
 		server_connection.Write(reqpac)
 		break
 	case 8: // Pchat message
-		pac := shared.Pchat_packet{Opcode: shared.PCHATCMD, Session_id: rand.Intn(1000)}
+		pac := shared.Pchat_cmd_packet{Opcode: shared.PCHATCMD, Session_id: rand.Int63()}
 		fmt.Println("Enter party chat message:")
 		pac.Text, _ = inreader.ReadString('\n')
 		reqpac, err := msgpack.Marshal(pac)
@@ -129,7 +129,7 @@ func main() {
 		server_connection.Write(reqpac)
 		break
 	case 9: // Gchat message
-		pac := shared.Gchat_packet{Opcode: shared.GCHATCMD, Session_id: rand.Intn(1000)}
+		pac := shared.Gchat_cmd_packet{Opcode: shared.GCHATCMD, Session_id: rand.Int63()}
 		fmt.Println("Enter guild chat message:")
 		pac.Text, _ = inreader.ReadString('\n')
 		reqpac, err := msgpack.Marshal(pac)
@@ -137,7 +137,7 @@ func main() {
 		server_connection.Write(reqpac)
 		break
 	case 10: // Whisper message
-		pac := shared.Whisper_packet{Opcode: shared.WHISPERCMD, Session_id: rand.Intn(1000)}
+		pac := shared.Whisper_cmd_packet{Opcode: shared.WHISPERCMD, Session_id: rand.Int63()}
 		fmt.Println("Enter targer name:")
 		fmt.Scanf("%s", &pac.Target)
 		fmt.Println("Enter whisper message:")

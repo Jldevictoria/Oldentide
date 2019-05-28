@@ -96,17 +96,17 @@ type Empty_packet struct {
 
 type Generic_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Ack_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Error_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Req_clist_packet struct {
@@ -121,286 +121,286 @@ type Send_clist_packet struct {
 
 type Create_player_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 	Pc         Pc
 }
 
 type Connect_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 	Account    string
 	Character  string
 }
 
 type Disconnect_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Send_player_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Send_pc_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Send_npc__packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Move_player_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Spend_dp_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Talk_cmd_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Attack_cmd_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Trade_cmd_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Invite_cmd_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Guild_invite_cmd_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Guild_kick_cmd_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Guild_promote_cmd_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Guild_demote_cmd_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Say_cmd_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 	Text       string
 }
 
 type Yell_cmd_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 	Text       string
 }
 
 type Ooc_cmd_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 	Text       string
 }
 
 type Help_cmd_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 	Text       string
 }
 
 type Pchat_cmd_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 	Text       string
 }
 
 type Gchat_cmd_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 	Text       string
 }
 
 type Whisper_cmd_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 	Target     string
 	Text       string
 }
 
 type Relay_say_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Relay_yell_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Relay_ooc_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Relay_help_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Relay_party_chat_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Relay_guild_chat_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Relay_whisper_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Activate_cmd_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Environment_update_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Dialogue_text_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Dialogue_cmd_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Send_item_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Init_shop_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Shop_item_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Buy_item_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Init_loot_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Loot_item_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Take_loot_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Init_trade_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Offer_item_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Pull_item_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Trade_item_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Remove_item_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Accept_trade_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Unaccept_trade_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Communicate_trade_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Finalize_trade_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Init_combat_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Add_npc_combat_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Add_pc_combat_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Remove_npc_combat_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }
 
 type Remove_pc_combat_packet struct {
 	Opcode     Opcode
-	Session_id int
+	Session_id int64
 }

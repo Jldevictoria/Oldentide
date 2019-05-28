@@ -150,8 +150,6 @@ func verifyPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-var session_id = 0
-
 // Web handler that handles logging in a player and returning them a sessionID.
 func loginPage(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
@@ -162,20 +160,18 @@ func loginPage(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	username := r.Form["username"][0]
 	password := r.Form["password"][0]
-	fmt.Println("username=", username)
-	fmt.Println("password=", password)
 	if !accountExists(username) {
-		fmt.Println("username dne")
+		fmt.Println("Username:", username, "Password:", password, " does not exist in databse.")
 		http.Error(w, "Username does not exist", http.StatusBadRequest)
 		return
 	}
 
 	// Get the salt of the user (the salt is public)
 	salt := getSaltFromAccount(username)
-	// Create a hash from the password and salt
-	hash := getHashFromAccount(username)
-	// Check the hash against what's in the DB
+	// Use the salt to get the hashed version of the given password.
 	supplied_hash := shared.SaltAndHash(password, salt)
+	// Get the hash key (password + salt) for the user from the database (the hash is private).
+	hash := getHashFromAccount(username)
 
 	if supplied_hash != hash {
 		http.Error(w, "Incorrect password", http.StatusUnauthorized)
@@ -183,15 +179,14 @@ func loginPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Return session_id and write session_id to db
-	// TODO: Always assume new session ID? Check for old session id first?
-	session_id++
+	session_id := generateUniqueSessionId() // sql_connector.go
 	if !setSessionId(username, session_id) {
 		http.Error(w, "Could not save the session ID to the DB", http.StatusInternalServerError)
 		return
 	}
 
-	fmt.Println("Login successful! Sending user back session ID =", session_id)
+	fmt.Println("Username:", username, "Password:", password, "successfuly logged in and was awarded session_id:", session_id)
 
 	// Success! Return the session id
-	fmt.Fprintf(w, strconv.Itoa(session_id))
+	fmt.Fprintf(w, strconv.FormatInt(session_id, 10))
 }
