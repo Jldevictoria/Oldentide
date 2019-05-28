@@ -40,6 +40,7 @@ const (
 	YELLCMD      Opcode = iota // CLIENT - Player said something with /y command.
 	OOCCMD       Opcode = iota // CLIENT - Player said something with /ooc command.
 	HELPCMD      Opcode = iota // CLIENT - Player said something with /h command.
+	PCHATCMD     Opcode = iota // CLIENT - Player seid something with /p command.
 	GCHATCMD     Opcode = iota // CLIENT - Player said something with /g command.
 	WHISPERCMD   Opcode = iota // CLIENT - Player said something with /w command (with player).
 	RELAYSAY     Opcode = iota // SERVER - Relay a say command to proper clients.
@@ -129,6 +130,12 @@ type Ooc_packet struct {
 }
 
 type Help_packet struct {
+	Opcode     Opcode
+	Session_id int
+	Text       string
+}
+
+type Pchat_packet struct {
 	Opcode     Opcode
 	Session_id int
 	Text       string

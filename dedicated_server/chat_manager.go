@@ -22,34 +22,30 @@ import (
 	//"time"
 )
 
-func handleHelpMessage(packet shared.Raw_packet) {
-	fmt.Println("Sending a help message to all players.")
-	//    for i, pc := range players {
-	//       // send back a RELAYHELP packet.
-	//       fmt.Println(pc)
-	//    }
+func handleSayMessage(packet shared.Say_packet) {
+	fmt.Print("[/s](", packet.Session_id, "): ", packet.Text)
 }
 
-func handleSayMessage(packet shared.Raw_packet) {
-	fmt.Println("Sending a say message to nearby players. (10 yards?)")
+func handleYellMessage(packet shared.Yell_packet) {
+	fmt.Print("[/y](", packet.Session_id, "): ", packet.Text)
 }
 
-func handleGuildMessage(packet shared.Raw_packet) {
-	fmt.Println("Sending a guild message to fellow online guildmates.")
+func handleOocMessage(packet shared.Ooc_packet) {
+	fmt.Print("[/ooc](", packet.Session_id, "): ", packet.Text)
 }
 
-func handleOocMessage(packet shared.Raw_packet) {
-	fmt.Println("Sending an OOC message to everyone in the current zone.")
+func handleHelpMessage(packet shared.Help_packet) {
+	fmt.Print("[/h](", packet.Session_id, "): ", packet.Text)
 }
 
-func handleWhisperMessage(packet shared.Raw_packet) {
-	fmt.Println("Sending a whisper message to a target player.")
+func handlePartyMessage(packet shared.Pchat_packet) {
+	fmt.Print("[/p](", packet.Session_id, "): ", packet.Text)
 }
 
-func handlePartyMessage(packet shared.Raw_packet) {
-	fmt.Println("Sending a party message to players in the same party.")
+func handleGuildMessage(packet shared.Gchat_packet) {
+	fmt.Print("[/g](", packet.Session_id, "): ", packet.Text)
 }
 
-func handleYellMessage(packet shared.Raw_packet) {
-	fmt.Println("Sending a yell message to nearby players. (50 yards?)")
+func handleWhisperMessage(packet shared.Whisper_packet) {
+	fmt.Print("[/w target](", packet.Session_id, " -> ", packet.Target, "): ", packet.Text)
 }

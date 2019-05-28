@@ -175,7 +175,7 @@ func main() {
 // Places all UDP packets that arrive on the hardware socket into a queue for handling.
 func Collect(connection *net.UDPConn, RawPacketQueue chan shared.Raw_packet, QuitChan chan bool) {
 	for {
-		buffer := make([]byte, 32) //512) //65507) // Max IPv4 UDP packet size.
+		buffer := make([]byte, 512) //65507) // Max IPv4 UDP packet size.
 		n, remote_address, err := connection.ReadFromUDP(buffer)
 		shared.CheckErr(err)
 		RawPacketQueue <- shared.Raw_packet{n, remote_address, buffer}
@@ -280,27 +280,52 @@ func Handle(RawPacketQueue chan shared.Raw_packet, QuitChan chan bool, rid int) 
 				continue
 			case shared.SAYCMD:
 				fmt.Println("Handling a SAYCMD packet.")
-				handleSayMessage(packet)
+				var decpac shared.Say_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
+				handleSayMessage(decpac)
 				continue
 			case shared.YELLCMD:
 				fmt.Println("Handling a YELLCMD packet.")
-				handleYellMessage(packet)
+				var decpac shared.Yell_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
+				handleYellMessage(decpac)
 				continue
 			case shared.OOCCMD:
 				fmt.Println("Handling a OOCCMD packet.")
-				handleOocMessage(packet)
+				var decpac shared.Ooc_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
+				handleOocMessage(decpac)
 				continue
 			case shared.HELPCMD:
 				fmt.Println("Handling a HELPCMD packet.")
-				handleHelpMessage(packet)
+				var decpac shared.Help_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
+				handleHelpMessage(decpac)
+				continue
+			case shared.PCHATCMD:
+				fmt.Println("Handling a PCHATCMD packet.")
+				var decpac shared.Pchat_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
+				handlePartyMessage(decpac)
 				continue
 			case shared.GCHATCMD:
 				fmt.Println("Handling a GCHATCMD packet.")
-				handleGuildMessage(packet)
+				var decpac shared.Gchat_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
+				handleGuildMessage(decpac)
 				continue
 			case shared.WHISPERCMD:
 				fmt.Println("Handling a WHISPERCMD packet.")
-				handleWhisperMessage(packet)
+				var decpac shared.Whisper_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
+				handleWhisperMessage(decpac)
 				continue
 			case shared.ACTIVATECMD:
 				fmt.Println("Handling a ACTIVATECMD packet.")
