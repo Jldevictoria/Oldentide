@@ -36,6 +36,7 @@ const (
 	GINVITECMD   Opcode = iota // CLIENT - Player initiated guild invite command (with player).
 	GKICK        Opcode = iota // CLIENT - Player initiated guild kick command (with player).
 	GPROMOTE     Opcode = iota // CLIENT - Player initiated a guild officer promotion command (with player).
+	GDEMOTE      Opcode = iota // CLIENT - Player initiated a guild officer demotion command (with player).
 	SAYCMD       Opcode = iota // CLIENT - Player said something with /s command.
 	YELLCMD      Opcode = iota // CLIENT - Player said something with /y command.
 	OOCCMD       Opcode = iota // CLIENT - Player said something with /ooc command.
@@ -47,11 +48,12 @@ const (
 	RELAYYELL    Opcode = iota // SERVER - Relay a yell command to proper clients.
 	RELAYOOC     Opcode = iota // SERVER - Relay an ooc command to proper clients.
 	RELAYHELP    Opcode = iota // SERVER - Relay a help command to proper clients.
+	RELAYPCHAT   Opcode = iota // SERVER - Relay a part chat command to proper clients.
 	RELAYGCHAT   Opcode = iota // SERVER - Relay a guild chat command to proper clients.
 	RELAYWHISPER Opcode = iota // SERVER - Relay a whisper command to proper client.
 	ACTIVATECMD  Opcode = iota // CLIENT - Player initiated game object activation command (with door/chest/switch).
 	ENVUPDATE    Opcode = iota // SERVER - Send a flag to appropriate clients for an environemnt variable (door/chest/switch).
-	DIALOGTEXT   Opcode = iota // SERVER - <PLACEHOLDER> Send dialog + options to client.
+	DIALOGUETEXT Opcode = iota // SERVER - <PLACEHOLDER> Send dialog + options to client.
 	DIALOGCMD    Opcode = iota // PLAYER - <PLACEHOLDER> Send dialog response from player.
 	SENDITEM     Opcode = iota // SERVER - Server successfully awards a given item to a designated player.
 	INITSHOP     Opcode = iota // SERVER - <PLACEHOLDER> Server has started a shop window.
@@ -88,10 +90,23 @@ type Opcode_packet struct {
 	Opcode Opcode
 }
 
-type Create_player_packet struct {
+type Empty_packet struct {
+	Opcode Opcode
+}
+
+type Generic_packet struct {
 	Opcode     Opcode
 	Session_id int
-	Pc         Pc
+}
+
+type Ack_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Error_packet struct {
+	Opcode     Opcode
+	Session_id int
 }
 
 type Req_clist_packet struct {
@@ -104,6 +119,12 @@ type Send_clist_packet struct {
 	Characters []string
 }
 
+type Create_player_packet struct {
+	Opcode     Opcode
+	Session_id int
+	Pc         Pc
+}
+
 type Connect_packet struct {
 	Opcode     Opcode
 	Session_id int
@@ -111,45 +132,275 @@ type Connect_packet struct {
 	Character  string
 }
 
-type Say_packet struct {
+type Disconnect_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Send_player_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Send_pc_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Send_npc__packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Move_player_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Spend_dp_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Talk_cmd_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Attack_cmd_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Trade_cmd_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Invite_cmd_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Guild_invite_cmd_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Guild_kick_cmd_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Guild_promote_cmd_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Guild_demote_cmd_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Say_cmd_packet struct {
 	Opcode     Opcode
 	Session_id int
 	Text       string
 }
 
-type Yell_packet struct {
+type Yell_cmd_packet struct {
 	Opcode     Opcode
 	Session_id int
 	Text       string
 }
 
-type Ooc_packet struct {
+type Ooc_cmd_packet struct {
 	Opcode     Opcode
 	Session_id int
 	Text       string
 }
 
-type Help_packet struct {
+type Help_cmd_packet struct {
 	Opcode     Opcode
 	Session_id int
 	Text       string
 }
 
-type Pchat_packet struct {
+type Pchat_cmd_packet struct {
 	Opcode     Opcode
 	Session_id int
 	Text       string
 }
 
-type Gchat_packet struct {
+type Gchat_cmd_packet struct {
 	Opcode     Opcode
 	Session_id int
 	Text       string
 }
 
-type Whisper_packet struct {
+type Whisper_cmd_packet struct {
 	Opcode     Opcode
 	Session_id int
 	Target     string
 	Text       string
+}
+
+type Relay_say_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Relay_yell_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Relay_ooc_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Relay_help_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Relay_party_chat_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Relay_guild_chat_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Relay_whisper_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Activate_cmd_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Environment_update_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Dialogue_text_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Dialogue_cmd_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Send_item_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Init_shop_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Shop_item_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Buy_item_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Init_loot_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Loot_item_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Take_loot_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Init_trade_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Offer_item_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Pull_item_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Trade_item_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Remove_item_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Accept_trade_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Unaccept_trade_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Communicate_trade_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Finalize_trade_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Init_combat_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Add_npc_combat_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Add_pc_combat_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Remove_npc_combat_packet struct {
+	Opcode     Opcode
+	Session_id int
+}
+
+type Remove_pc_combat_packet struct {
+	Opcode     Opcode
+	Session_id int
 }

@@ -205,9 +205,15 @@ func Handle(RawPacketQueue chan shared.Raw_packet, QuitChan chan bool, rid int) 
 				continue
 			case shared.ACK:
 				fmt.Println("Handling an ACK packet.")
+				var decpac shared.Ack_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
 				continue
 			case shared.ERROR:
 				fmt.Println("Handling an ERROR packet.")
+				var decpac shared.Error_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
 				continue
 			case shared.REQCLIST:
 				fmt.Println("Handling a REQCLIST packet.")
@@ -247,109 +253,166 @@ func Handle(RawPacketQueue chan shared.Raw_packet, QuitChan chan bool, rid int) 
 				}
 			case shared.CONNECT:
 				fmt.Println("Handling a CONNECT packet.")
+				var decpac shared.Connect_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
 				continue
 			case shared.DISCONNECT:
 				fmt.Println("Handling a DISCONNECT packet.")
+				var decpac shared.Disconnect_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
 				continue
 			case shared.MOVEPLAYER:
 				fmt.Println("Handling a MOVEPLAYER packet.")
+				var decpac shared.Move_player_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
 				continue
 			case shared.SPENDDP:
 				fmt.Println("Handling a SPENDDP packet.")
+				var decpac shared.Spend_dp_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
 				continue
 			case shared.TALKCMD:
 				fmt.Println("Handling a TALKCMD packet.")
+				var decpac shared.Talk_cmd_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
 				continue
 			case shared.ATTACKCMD:
 				fmt.Println("Handling a ATTACKCMD packet.")
+				var decpac shared.Attack_cmd_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
 				continue
 			case shared.TRADECMD:
 				fmt.Println("Handling a TRADECMD packet.")
+				var decpac shared.Trade_cmd_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
 				continue
 			case shared.INVITECMD:
 				fmt.Println("Handling a INVITECMD packet.")
+				var decpac shared.Invite_cmd_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
 				continue
 			case shared.GINVITECMD:
 				fmt.Println("Handling a GINVITECMD packet.")
+				var decpac shared.Guild_invite_cmd_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
 				continue
 			case shared.GKICK:
 				fmt.Println("Handling a GKICK packet.")
+				var decpac shared.Guild_kick_cmd_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
 				continue
 			case shared.GPROMOTE:
 				fmt.Println("Handling a GPROMOTE packet.")
+				var decpac shared.Guild_promote_cmd_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
 				continue
 			case shared.SAYCMD:
 				fmt.Println("Handling a SAYCMD packet.")
-				var decpac shared.Say_packet
+				var decpac shared.Say_cmd_packet
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
 				shared.CheckErr(err)
 				handleSayMessage(decpac)
 				continue
 			case shared.YELLCMD:
 				fmt.Println("Handling a YELLCMD packet.")
-				var decpac shared.Yell_packet
+				var decpac shared.Yell_cmd_packet
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
 				shared.CheckErr(err)
 				handleYellMessage(decpac)
 				continue
 			case shared.OOCCMD:
 				fmt.Println("Handling a OOCCMD packet.")
-				var decpac shared.Ooc_packet
+				var decpac shared.Ooc_cmd_packet
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
 				shared.CheckErr(err)
 				handleOocMessage(decpac)
 				continue
 			case shared.HELPCMD:
 				fmt.Println("Handling a HELPCMD packet.")
-				var decpac shared.Help_packet
+				var decpac shared.Help_cmd_packet
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
 				shared.CheckErr(err)
 				handleHelpMessage(decpac)
 				continue
 			case shared.PCHATCMD:
 				fmt.Println("Handling a PCHATCMD packet.")
-				var decpac shared.Pchat_packet
+				var decpac shared.Pchat_cmd_packet
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
 				shared.CheckErr(err)
 				handlePartyMessage(decpac)
 				continue
 			case shared.GCHATCMD:
 				fmt.Println("Handling a GCHATCMD packet.")
-				var decpac shared.Gchat_packet
+				var decpac shared.Gchat_cmd_packet
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
 				shared.CheckErr(err)
 				handleGuildMessage(decpac)
 				continue
 			case shared.WHISPERCMD:
 				fmt.Println("Handling a WHISPERCMD packet.")
-				var decpac shared.Whisper_packet
+				var decpac shared.Whisper_cmd_packet
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
 				shared.CheckErr(err)
 				handleWhisperMessage(decpac)
 				continue
 			case shared.ACTIVATECMD:
 				fmt.Println("Handling a ACTIVATECMD packet.")
+				var decpac shared.Activate_cmd_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
 				continue
 			case shared.DIALOGCMD:
-				fmt.Println("Handling a DIALOGCMD packet.")
+				fmt.Println("Handling a DIALOGUECMD packet.")
+				var decpac shared.Dialogue_cmd_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
 				continue
 			case shared.BUYITEM:
 				fmt.Println("Handling a BUYITEM packet.")
+				var decpac shared.Buy_item_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
 				continue
 			case shared.TAKELOOT:
 				fmt.Println("Handling a TAKELOOT packet.")
+				var decpac shared.Take_loot_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
 				continue
 			case shared.OFFERITEM:
 				fmt.Println("Handling a OFFERITEM packet.")
+				var decpac shared.Offer_item_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
 				continue
 			case shared.PULLITEM:
 				fmt.Println("Handling a PULLITEM packet.")
+				var decpac shared.Pull_item_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
 				continue
 			case shared.ACCTRADE:
 				fmt.Println("Handling a ACCTRADE packet.")
+				var decpac shared.Accept_trade_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
 				continue
 			case shared.UNACCTRADE:
 				fmt.Println("Handling a UNACCTRADE packet.")
+				var decpac shared.Unaccept_trade_packet
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.CheckErr(err)
 				continue
 			default:
 				continue
