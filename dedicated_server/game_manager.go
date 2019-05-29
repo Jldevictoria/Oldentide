@@ -5,6 +5,8 @@
 
 package main
 
+import "Oldentide/shared"
+
 type Session int64
 
-//var players = make(map[int64]Player)
+var players = make(map[int64]*shared.Pc)

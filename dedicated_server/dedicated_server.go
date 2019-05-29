@@ -118,7 +118,7 @@ func main() {
 	}
 
 	pcs := pullPcs()
-	fmt.Println("* PCs populated from database:\n")
+	fmt.Println("* PCs listed in database:\n")
 	for _, pc := range pcs {
 		fmt.Println(pc)
 	}
@@ -256,18 +256,43 @@ func Handle(RawPacketQueue chan shared.Raw_packet, QuitChan chan bool, rid int) 
 				var decpac shared.Connect_packet
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
 				shared.CheckErr(err)
+				if p, ok := players[decpac.Session_id]; ok {
+					fmt.Println("Player", *p, "tried to connect twice.  Forcing full disconnect.")
+					delete(players, decpac.Session_id)
+					// Send a force disconnect packet.
+				} else {
+					fmt.Println("I should be adding a player to the map here...")
+				}
 				continue
 			case shared.DISCONNECT:
 				fmt.Println("Handling a DISCONNECT packet.")
 				var decpac shared.Disconnect_packet
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
 				shared.CheckErr(err)
+				if _, ok := players[decpac.Session_id]; ok {
+					delete(players, decpac.Session_id)
+					// Send a force disconnect packet.
+				} else {
+					fmt.Println("Player with session", decpac.Session_id, "tried to disconnect, but was never connected...")
+				}
 				continue
 			case shared.MOVEPLAYER:
 				fmt.Println("Handling a MOVEPLAYER packet.")
 				var decpac shared.Move_player_packet
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
 				shared.CheckErr(err)
+				var player *shared.Pc
+				players[decpac.Session_id] = player
+				if player, ok := players[decpac.Session_id]; ok {
+					fmt.Println(*player)
+					player.X = decpac.X
+					player.Y = decpac.Y
+					player.Z = decpac.Z
+					player.Direction = decpac.Direction
+					fmt.Println(*player)
+				} else {
+					fmt.Println("Player did not exist in MOVEPLAYER case for session", decpac.Session_id)
+				}
 				continue
 			case shared.SPENDDP:
 				fmt.Println("Handling a SPENDDP packet.")

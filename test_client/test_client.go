@@ -146,6 +146,12 @@ func main() {
 		shared.CheckErr(err)
 		server_connection.Write(reqpac)
 		break
+	case 11: // Move player
+		pac := shared.Move_player_packet{Opcode: shared.MOVEPLAYER, Session_id: rand.Int63(), X: rand.Float32(), Y: rand.Float32(), Z: rand.Float32(), Direction: rand.Float32()}
+		reqpac, err := msgpack.Marshal(pac)
+		shared.CheckErr(err)
+		server_connection.Write(reqpac)
+		break
 	default:
 		fmt.Println("You need to give a valid test number.  (-test=[number])")
 	}

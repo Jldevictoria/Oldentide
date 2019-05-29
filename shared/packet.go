@@ -128,7 +128,6 @@ type Create_player_packet struct {
 type Connect_packet struct {
 	Opcode     Opcode
 	Session_id int64
-	Account    string
 	Character  string
 }
 
@@ -155,6 +154,10 @@ type Send_npc__packet struct {
 type Move_player_packet struct {
 	Opcode     Opcode
 	Session_id int64
+	X          float32
+	Y          float32
+	Z          float32
+	Direction  float32
 }
 
 type Spend_dp_packet struct {
