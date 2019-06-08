@@ -77,6 +77,7 @@ func (ogs *OldentideClientGamestate) SetupGui(width, height int) {
 		kev := ev.(*window.KeyEvent)
 		switch kev.Keycode {
 		case window.KeyTab:
+			fmt.Println("User tried to tab to password box... doesn't work yet.")
 			ogs.root.SetKeyFocus(ogs.login_password_edit)
 		case window.KeyEnter:
 			fmt.Println("Enter pressed on username!!!")
@@ -90,10 +91,18 @@ func (ogs *OldentideClientGamestate) SetupGui(width, height int) {
 	ogs.login_password_edit.SetFontSize(16)
 	ogs.login_password_edit.Subscribe(gui.OnChar, func(name string, ev interface{}) {
 		input_char := string(ev.(*window.CharEvent).Char)
-		ogs.login_password += input_char
-		ogs.login_password_edit.CursorBack()
-		ogs.login_password_edit.CursorInput("*")
-		fmt.Println("Typed something in password box.", ogs.login_password)
+		switch input_char {
+		case "\b": // backspace
+			pwsz := len(ogs.login_password)
+			if pwsz > 0 {
+				ogs.login_password = ogs.login_password[:pwsz-1]
+			}
+		default:
+			ogs.login_password += input_char
+			ogs.login_password_edit.CursorBack()
+			ogs.login_password_edit.CursorInput("*")
+			fmt.Println("Typed something in password box.", ogs.login_password)
+		}
 	})
 	ogs.login_password_edit.Subscribe(gui.OnKeyDown, func(name string, ev interface{}) {
 		kev := ev.(*window.KeyEvent)
