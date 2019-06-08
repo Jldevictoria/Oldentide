@@ -175,6 +175,7 @@ func loginPage(w http.ResponseWriter, r *http.Request) {
 
 	if supplied_hash != hash {
 		http.Error(w, "Incorrect password", http.StatusUnauthorized)
+        fmt.Println("Username:", username, " tried to log in with the wrong password.")
 		return
 	}
 
