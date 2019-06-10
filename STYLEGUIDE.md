@@ -2,6 +2,8 @@
 
 ## Go
 
+### USE "go fmt *.go" for all your go code.
+
 * **Boilerplate** Every code-containing file should have the same boilerplate at the top of the file.  
   The boilerplate should include the file name, creation date, author's name, and purpose (in that order).
 ```Go
