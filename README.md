@@ -36,6 +36,8 @@
 
 **Please contact me immediately if you see any bugs or want to contribute.  I need help developing the game!**<br>
 
+[Reading Material](https://www.copyright.gov/fls/fl108.pdf)
+
 =================================
 
 ## Client Build Instructions (During DEVELOPMENT):
