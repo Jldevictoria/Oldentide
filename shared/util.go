@@ -8,6 +8,8 @@ package shared
 import (
 	"crypto/sha256"
 	"encoding/base64"
+    "encoding/json"
+    "fmt"
 	"log"
 	"math/rand"
 	"os"
@@ -89,4 +91,18 @@ func DefaultGOPATH() string {
 		return def
 	}
 	return ""
+}
+
+func Use(vals ...interface{}) {
+	for _, val := range vals {
+		_ = val
+	}
+}
+
+func PrettyPrint(v interface{}) (err error) {
+    b, err := json.MarshalIndent(v, "", "  ")
+    if err == nil {
+        fmt.Println(string(b))
+    }
+    return
 }

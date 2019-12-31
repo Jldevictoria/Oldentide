@@ -369,11 +369,40 @@ func pullItemTemplates() []shared.Item_template {
 			&item_template.Description,
 			&item_template.True_description,
 		)
-		fmt.Println(&item_template.Name)
 		shared.CheckErr(err)
 		item_templates = append(item_templates, item_template)
 	}
 	return item_templates
+}
+
+func pullSpellTemplates() []shared.Spell_template {
+	rows, err := db.Query("Select * FROM spell_templates")
+	defer rows.Close()
+	var spell_templates []shared.Spell_template
+	for rows.Next() {
+		var spell_template shared.Spell_template
+		err = rows.Scan(
+			&spell_template.Id,
+			&spell_template.Spellname,
+			&spell_template.School,
+			&spell_template.Level,
+			&spell_template.Type,
+			&spell_template.Target,
+			&spell_template.Range,
+			&spell_template.Accuracy,
+			&spell_template.Preparation_time,
+			&spell_template.Recovery_time,
+			&spell_template.Effect_1,
+			&spell_template.Effect_2,
+			&spell_template.Effect_3,
+			&spell_template.Effect_4,
+			&spell_template.Effect_5,
+			&spell_template.Description,
+		)
+		shared.CheckErr(err)
+		spell_templates = append(spell_templates, spell_template)
+	}
+	return spell_templates
 }
 
 func pullRaceTemplates() []shared.Race_template {

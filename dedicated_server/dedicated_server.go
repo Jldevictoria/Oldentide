@@ -33,6 +33,7 @@ var webadd string
 var email string
 var epass string
 var dbpath string
+var debug bool
 var eauth smtp.Auth
 var db *sql.DB
 var packet_count int
@@ -45,6 +46,7 @@ func init() {
 	flag.StringVar(&email, "email", "", "Gmail email address used to send verification emails.")
 	flag.StringVar(&epass, "epass", "", "Gmail email password used to send verification emails.")
 	flag.StringVar(&dbpath, "dbpath", shared.DefaultGOPATH()+"/src/Oldentide/db/oldentide.db", "Path to oldentide.db")
+    flag.BoolVar(&debug, "debug", false, "Turn on debugging prints")
 	rand.Seed(time.Now().UTC().UnixNano())
 }
 
@@ -61,6 +63,7 @@ func main() {
 	fmt.Println("email:", email)
 	fmt.Println("epass:", epass)
 	fmt.Println("dbpath:", dbpath)
+    fmt.Println("debug:", debug)
 	if gport == 0 {
 		log.Fatal("Please provide a game port with the command line flag -gport=<number>")
 	}
@@ -101,33 +104,39 @@ func main() {
 	// --------------------------------------------------------------------------------------------
 	race_templates := pullRaceTemplates()
 	fmt.Println("\n* Race templates populated from database.\n")
-	for _, race_template := range race_templates {
-		fmt.Println(race_template)
-	}
+    if debug {
+        shared.PrettyPrint(race_templates)
+    }
 
 	profession_templates := pullProfessionTemplates()
 	fmt.Println("\n* Profession templates populated from database.\n")
-	for _, profession_template := range profession_templates {
-		fmt.Println(profession_template)
-	}
+    if debug {
+        shared.PrettyPrint(profession_templates)
+    }
 
 	item_templates := pullItemTemplates()
-	fmt.Println("\n* Item templates populated from database:\n")
-	for _, item_template := range item_templates {
-		fmt.Println(item_template)
-	}
+	fmt.Println("\n* Item templates populated from database.\n")
+    if debug {
+        shared.PrettyPrint(item_templates)
+    }
+
+	spell_templates := pullSpellTemplates()
+	fmt.Println("\n* Spell templates populated from database.\n")
+    if debug {
+        shared.PrettyPrint(spell_templates)
+    }
 
 	pcs := pullPcs()
-	fmt.Println("* PCs listed in database:\n")
-	for _, pc := range pcs {
-		fmt.Println(pc)
-	}
+	fmt.Println("\n* PCs listed in database.\n")
+    if debug {
+        shared.PrettyPrint(pcs)
+    }
 
 	npcs := pullNpcs()
-	fmt.Println("\n* NPCs populated from database:\n")
-	for _, npc := range npcs {
-		fmt.Println(npc)
-	}
+	fmt.Println("\n* NPCs populated from database.\n")
+    if debug {
+        shared.PrettyPrint(npcs)
+    }
 
 	// inventories := pullInventories()
 

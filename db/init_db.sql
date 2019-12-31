@@ -224,6 +224,27 @@ CREATE TABLE item_templates (
     true_description text
 );
 
+-- spell templates contain the reference for all the possible spells in the game.
+DROP TABLE IF EXISTS spell_templates;
+CREATE TABLE spell_templates (
+    id integer not null primary key autoincrement,
+    spellname text not null,
+    school text not null,
+    level integer not null,
+    type text not null,
+    target text not null,
+    range text float not null,
+    accuracy float not null,
+    preparation_time integer not null,
+    recovery_time integer not null,
+    effect_1 text not null,
+    effect_2 text,
+    effect_3 text,
+    effect_4 text,
+    effect_5 text,
+    description text not null
+);
+
 DROP TABLE IF EXISTS race_templates;
 CREATE TABLE race_templates (
     id integer not null primary key autoincrement,
@@ -305,7 +326,7 @@ CREATE TABLE profession_templates (
     constitution_mod real not null default 0.0,
     intelligence_mod real not null default 0.0,
     dexterity_mod real not null default 0.0,
-        -- Weapons:
+    -- Weapons:
     axe_mod real not null default 0.0,
     dagger_mod real not null default 0.0,
     hammer_mod real not null default 0.0,

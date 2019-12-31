@@ -235,6 +235,25 @@ type Item_template struct {
 	True_description         string
 }
 
+type Spell_template struct {
+	Id               int32
+	Spellname        string
+	School           string
+	Level            int32
+	Type             string
+	Target           string
+	Range            float32
+	Accuracy         float32
+	Preparation_time int32
+	Recovery_time    int32
+	Effect_1         string
+	Effect_2         string
+	Effect_3         string
+	Effect_4         string
+	Effect_5         string
+	Description      string
+}
+
 type Race_template struct {
 	Id                 int
 	Race               string
