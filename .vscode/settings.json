@@ -1,0 +1,15 @@
+{
+    "sqltools.useNodeRuntime": true,
+    "sqltools.connections": [
+        {
+            "database": "${workspaceFolder}\\db/oldentide.db",
+            "dialect": "SQLite",
+            "name": "Oldentide"
+        },
+    ],
+    "files.exclude": {
+        "**/.git": true,
+        "**/.vscode": true,
+        "**.gitignore": true
+    }
+}
