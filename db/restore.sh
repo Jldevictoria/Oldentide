@@ -33,7 +33,31 @@ echo "NPCs Restored."
 sqlite3 oldentide.db <<EOF
 .headers on
 .mode csv
-.import items_backup.csv items
+.import item_templates_backup.csv item_templates
 .quit
 EOF
-echo "Items Restored."
+echo "Items templates Restored."
+
+sqlite3 oldentide.db <<EOF
+.headers on
+.mode csv
+.import spell_templates_backup.csv spell_templates
+.quit
+EOF
+echo "Spell templates Restored."
+
+sqlite3 oldentide.db <<EOF
+.headers on
+.mode csv
+.import race_templates_backup.csv race_templates
+.quit
+EOF
+echo "Race templates Restored."
+
+sqlite3 oldentide.db <<EOF
+.headers on
+.mode csv
+.import profession_templates_backup.csv profession_templates
+.quit
+EOF
+echo "Profession templates Restored."

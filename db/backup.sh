@@ -36,9 +36,35 @@ echo "NPCs complete."
 sqlite3 oldentide.db <<EOF
 .headers on
 .mode csv
-.output items_backup.csv
-SELECT * FROM items;
+.output item_templates_backup.csv
+SELECT * FROM item_templates;
 .quit
 EOF
-echo "Items complete."
+echo "Items templates complete."
 
+sqlite3 oldentide.db <<EOF
+.headers on
+.mode csv
+.output spell_templates_backup.csv
+SELECT * FROM spell_templates;
+.quit
+EOF
+echo "Spell templates complete."
+
+sqlite3 oldentide.db <<EOF
+.headers on
+.mode csv
+.output race_templates_backup.csv
+SELECT * FROM race_templates;
+.quit
+EOF
+echo "Race templates complete."
+
+sqlite3 oldentide.db <<EOF
+.headers on
+.mode csv
+.output profession_templates_backup.csv
+SELECT * FROM profession_templates;
+.quit
+EOF
+echo "Profession templates complete."
