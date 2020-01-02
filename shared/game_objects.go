@@ -401,13 +401,7 @@ type ProfessionTemplate struct {
 }
 
 // MakePlayer is the meaty function we will use to validate new players being created.  It should reject requests that are not allowed by game rules.
-func MakePlayer(
-	fname string,
-	lname string,
-	gender string,
-	race string,
-	skin string) Pc {
-
+func MakePlayer(fname string, lname string, gender string, race string, skin string) Pc {
 	return Pc{
 		ID:             0,
 		AccountID:      0,
@@ -505,8 +499,8 @@ func MakePlayer(
 	}
 }
 
-// TestMakePlayer is a test function for MakePlayer().
-func TestMakePlayer(name string) Pc {
+// MakePlayerByName is a test function for MakePlayer().
+func MakePlayerByName(name string) Pc {
 	return Pc{
 		ID:             0,
 		AccountID:      0,

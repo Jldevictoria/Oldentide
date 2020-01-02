@@ -40,6 +40,7 @@ var db *sql.DB
 var packetCount int
 
 func init() {
+	rand.Seed(time.Now().UTC().UnixNano())
 	flag.IntVar(&gport, "gport", 0, "Port used for dedicated game server.")
 	flag.IntVar(&wport, "wport", 0, "Port used for website.")
 	flag.BoolVar(&everify, "everify", false, "Use an emailer to verify accounts?")
@@ -48,7 +49,6 @@ func init() {
 	flag.StringVar(&epass, "epass", "", "Gmail email password used to send verification emails.")
 	flag.StringVar(&dbpath, "dbpath", shared.DefaultGOPATH()+"/src/Oldentide/db/oldentide.db", "Path to oldentide.db")
 	flag.BoolVar(&debug, "debug", false, "Turn on debugging prints")
-	rand.Seed(time.Now().UTC().UnixNano())
 }
 
 func main() {
@@ -103,40 +103,40 @@ func main() {
 
 	// Initialize the game state (populates all of the npcs, and game objects, etc).
 	// --------------------------------------------------------------------------------------------
-	raceTemplates := pullRaceTemplates()
+	RaceTemplates = pullRaceTemplates()
 	fmt.Println("\n* Race templates populated from database.")
 	if debug {
-		shared.PrettyPrint(raceTemplates)
+		shared.PrettyPrint(RaceTemplates)
 	}
 
-	professionTemplates := pullProfessionTemplates()
+	ProfessionTemplates = pullProfessionTemplates()
 	fmt.Println("\n* Profession templates populated from database.")
 	if debug {
-		shared.PrettyPrint(professionTemplates)
+		shared.PrettyPrint(ProfessionTemplates)
 	}
 
-	itemTemplates := pullItemTemplates()
+	ItemTemplates = pullItemTemplates()
 	fmt.Println("\n* Item templates populated from database.")
 	if debug {
-		shared.PrettyPrint(itemTemplates)
+		shared.PrettyPrint(ItemTemplates)
 	}
 
-	spellTemplates := pullSpellTemplates()
+	SpellTemplates = pullSpellTemplates()
 	fmt.Println("\n* Spell templates populated from database.")
 	if debug {
-		shared.PrettyPrint(spellTemplates)
+		shared.PrettyPrint(SpellTemplates)
 	}
 
-	pcs := pullPcs()
+	Pcs = pullPcs()
 	fmt.Println("\n* PCs listed in database.")
-	if debug {
-		shared.PrettyPrint(pcs)
-	}
+	//if debug {
+	shared.PrettyPrint(Pcs)
+	//}
 
-	npcs := pullNpcs()
+	Npcs = pullNpcs()
 	fmt.Println("\n* NPCs populated from database.")
 	if debug {
-		shared.PrettyPrint(npcs)
+		shared.PrettyPrint(Npcs)
 	}
 
 	// inventories := pullInventories()
@@ -185,7 +185,7 @@ func main() {
 // Collect places all UDP packets that arrive on the hardware socket into a queue for handling.
 func Collect(connection *net.UDPConn, rawPacketQueue chan shared.RawPacket, quitChan chan bool) {
 	for {
-		buffer := make([]byte, 512) //65507) // Max IPv4 UDP packet size.
+		buffer := make([]byte, 65507) // Max IPv4 UDP packet size.
 		n, remoteAddress, err := connection.ReadFromUDP(buffer)
 		shared.CheckErr(err)
 		rawPacketQueue <- shared.RawPacket{Size: n, Client: remoteAddress, Payload: buffer}
@@ -266,12 +266,26 @@ func Handle(rawPacketQueue chan shared.RawPacket, quitChan chan bool, rid int) {
 				var decpac shared.ConnectPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
 				shared.CheckErr(err)
-				if p, ok := players[decpac.SessionID]; ok {
+				if p, ok := Sessions[decpac.SessionID]; ok {
 					fmt.Println("Player", *p, "tried to connect twice.  Forcing full disconnect.")
-					delete(players, decpac.SessionID)
-					// Send a force disconnect packet.
+					// // Send a force disconnect packet.
+					// var retpac shared.DisconnectPacket
+					// retpac.Opcode = shared.DISCONNECT
+					// retpac.SessionID = decpac.SessionID
+					// var retbuf, err = msgpack.Marshal(retpac)
+					// shared.CheckErr(err)
+					// _, err = net.UDPConn.Write
+					// // Remove player from active sessions.
+					// var tp, _ = GetPlayerByFirstname(decpac.Character)
+					delete(Sessions, decpac.SessionID)
+					// delete(PlayerNameSessions, tp.Firstname)
 				} else {
-					fmt.Println("I should be adding a player to the map here...")
+					var tp, err = GetPlayerByFirstname(decpac.Character)
+					if err != nil {
+						fmt.Println(err)
+					} else {
+						Sessions[decpac.SessionID] = &tp
+					}
 				}
 				continue
 			case shared.DISCONNECT:
@@ -279,8 +293,8 @@ func Handle(rawPacketQueue chan shared.RawPacket, quitChan chan bool, rid int) {
 				var decpac shared.DisconnectPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
 				shared.CheckErr(err)
-				if _, ok := players[decpac.SessionID]; ok {
-					delete(players, decpac.SessionID)
+				if _, ok := Sessions[decpac.SessionID]; ok {
+					delete(Sessions, decpac.SessionID)
 					// Send a force disconnect packet.
 				} else {
 					fmt.Println("Player with session", decpac.SessionID, "tried to disconnect, but was never connected...")
@@ -292,8 +306,8 @@ func Handle(rawPacketQueue chan shared.RawPacket, quitChan chan bool, rid int) {
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
 				shared.CheckErr(err)
 				var player *shared.Pc
-				players[decpac.SessionID] = player
-				if player, ok := players[decpac.SessionID]; ok {
+				Sessions[decpac.SessionID] = player
+				if player, ok := Sessions[decpac.SessionID]; ok {
 					fmt.Println(*player)
 					player.X = decpac.X
 					player.Y = decpac.Y

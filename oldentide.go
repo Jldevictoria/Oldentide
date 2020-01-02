@@ -1,4 +1,4 @@
-// Filename:    test_client.go
+// Filename:    oldentide.go (Formerly test_client.go)
 // Author:      Joseph DeVictoria
 // Date:        February_26_2019
 // Purpose:     A command line based test client for Oldentide written in Go.
@@ -24,12 +24,14 @@ var err error
 var sadd string
 var sport int
 var test int
+var sid int64
 
 func init() {
+	rand.Seed(time.Now().UTC().UnixNano())
 	flag.StringVar(&sadd, "server", "0.0.0.0", "Dedicated game server address.")
 	flag.IntVar(&sport, "port", 1337, "Port used for dedicated game server.")
-	flag.IntVar(&test, "test", 0, "Test number within the test_client that we want to call.")
-	rand.Seed(time.Now().UTC().UnixNano())
+	flag.IntVar(&test, "test", 0, "Test number within the test_client that we want to call. If not given, it will default to a sample \"game\".")
+	flag.Int64Var(&sid, "session", rand.Int63(), "Session will allow you to force a SessionID for your packets.")
 }
 
 func main() {
@@ -41,15 +43,15 @@ func main() {
 	fmt.Println("Server Address:", sadd)
 	fmt.Println("Server Port:", sport)
 	fmt.Println("\n-------------------------------------------------------")
-	fmt.Println("Starting Oldentide test client!")
+	fmt.Println("Starting Oldentide command line client!")
 	fmt.Println("-------------------------------------------------------")
 	// // Listener.
-	// client_address := net.UDPAddr{
+	// clientAddress := net.UDPAddr{
 	// 	IP:   net.IP{0, 0, 0, 0},
 	// 	Port: sport,
 	// }
-	// listen_socket, err := net.ListenUDP("udp", &client_address)
-	// defer listen_socket.Close()
+	// listenSocket, err := net.ListenUDP("udp", &clientAddress)
+	// defer listenSocket.Close()
 	// shared.CheckErr(err)
 
 	// Set up server connection.
@@ -64,7 +66,7 @@ func main() {
 
 	switch test {
 	case 0: // default case.
-		fmt.Println("You probably meant to give me a test number.  (-test=[number])")
+		fmt.Println("You didnt test number.  (-test=[number])")
 		break
 	case 1: // SPAM
 		pac := shared.OpcodePacket{Opcode: shared.GENERIC}
@@ -76,7 +78,11 @@ func main() {
 		}
 		break
 	case 2: // create a character.
-		p := makePlayer("Joe")
+		var pn string
+		fmt.Print("Please provide a player name: ")
+		fmt.Scanf("%s", &pn)
+		p := makePlayer(pn)
+		fmt.Print(p)
 		pac := shared.CreatePlayerPacket{Opcode: shared.CREATEPLAYER, Pc: p}
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
@@ -89,7 +95,7 @@ func main() {
 		serverConnection.Write(reqpac)
 		break
 	case 4: // Say message
-		pac := shared.SayCmdPacket{Opcode: shared.SAYCMD, SessionID: rand.Int63()}
+		pac := shared.SayCmdPacket{Opcode: shared.SAYCMD, SessionID: sid}
 		fmt.Println("Enter say message:")
 		pac.Text, _ = inreader.ReadString('\n')
 		fmt.Println(pac)
@@ -98,7 +104,7 @@ func main() {
 		serverConnection.Write(reqpac)
 		break
 	case 5: // Yell message
-		pac := shared.YellCmdPacket{Opcode: shared.YELLCMD, SessionID: rand.Int63()}
+		pac := shared.YellCmdPacket{Opcode: shared.YELLCMD, SessionID: sid}
 		fmt.Println("Enter yell message:")
 		pac.Text, _ = inreader.ReadString('\n')
 		reqpac, err := msgpack.Marshal(pac)
@@ -106,7 +112,7 @@ func main() {
 		serverConnection.Write(reqpac)
 		break
 	case 6: // Ooc message
-		pac := shared.OocCmdPacket{Opcode: shared.OOCCMD, SessionID: rand.Int63()}
+		pac := shared.OocCmdPacket{Opcode: shared.OOCCMD, SessionID: sid}
 		fmt.Println("Enter ooc message:")
 		pac.Text, _ = inreader.ReadString('\n')
 		reqpac, err := msgpack.Marshal(pac)
@@ -114,7 +120,7 @@ func main() {
 		serverConnection.Write(reqpac)
 		break
 	case 7: // Help message
-		pac := shared.HelpCmdPacket{Opcode: shared.HELPCMD, SessionID: rand.Int63()}
+		pac := shared.HelpCmdPacket{Opcode: shared.HELPCMD, SessionID: sid}
 		fmt.Println("Enter help message:")
 		pac.Text, _ = inreader.ReadString('\n')
 		reqpac, err := msgpack.Marshal(pac)
@@ -122,7 +128,7 @@ func main() {
 		serverConnection.Write(reqpac)
 		break
 	case 8: // Pchat message
-		pac := shared.PchatCmdPacket{Opcode: shared.PCHATCMD, SessionID: rand.Int63()}
+		pac := shared.PchatCmdPacket{Opcode: shared.PCHATCMD, SessionID: sid}
 		fmt.Println("Enter party chat message:")
 		pac.Text, _ = inreader.ReadString('\n')
 		reqpac, err := msgpack.Marshal(pac)
@@ -130,7 +136,7 @@ func main() {
 		serverConnection.Write(reqpac)
 		break
 	case 9: // Gchat message
-		pac := shared.GchatCmdPacket{Opcode: shared.GCHATCMD, SessionID: rand.Int63()}
+		pac := shared.GchatCmdPacket{Opcode: shared.GCHATCMD, SessionID: sid}
 		fmt.Println("Enter guild chat message:")
 		pac.Text, _ = inreader.ReadString('\n')
 		reqpac, err := msgpack.Marshal(pac)
@@ -138,17 +144,25 @@ func main() {
 		serverConnection.Write(reqpac)
 		break
 	case 10: // Whisper message
-		pac := shared.WhisperCmdPacket{Opcode: shared.WHISPERCMD, SessionID: rand.Int63()}
+		pac := shared.WhisperCmdPacket{Opcode: shared.WHISPERCMD, SessionID: sid}
 		fmt.Println("Enter targer name:")
-		fmt.Scanf("%s", &pac.Target)
+		fmt.Scanln(&pac.Target)
 		fmt.Println("Enter whisper message:")
-		pac.Text, _ = inreader.ReadString('\n')
+		fmt.Scanln(&pac.Text)
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
 		serverConnection.Write(reqpac)
 		break
 	case 11: // Move player
-		pac := shared.MovePlayerPacket{Opcode: shared.MOVEPLAYER, SessionID: rand.Int63(), X: rand.Float32(), Y: rand.Float32(), Z: rand.Float32(), Direction: rand.Float32()}
+		pac := shared.MovePlayerPacket{Opcode: shared.MOVEPLAYER, SessionID: sid, X: rand.Float32(), Y: rand.Float32(), Z: rand.Float32(), Direction: rand.Float32()}
+		reqpac, err := msgpack.Marshal(pac)
+		shared.CheckErr(err)
+		serverConnection.Write(reqpac)
+		break
+	case 12: // Connect a character
+		var pn string
+		fmt.Scanf("%s", &pn)
+		pac := shared.ConnectPacket{Opcode: shared.CONNECT, SessionID: sid, Character: pn}
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
 		serverConnection.Write(reqpac)

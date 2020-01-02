@@ -382,4 +382,4 @@ DROP TABLE temp_profession_templates;
 EOF
 echo "Profession Templates Populated."
 
-echo "Database Fulle Initializd! Exiting..."
+echo "Database Fully Initializd! Exiting..."

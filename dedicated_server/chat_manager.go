@@ -23,29 +23,30 @@ import (
 )
 
 func handleSayMessage(packet shared.SayCmdPacket) {
-	fmt.Print("[/s](", packet.SessionID, "): ", packet.Text)
+	fmt.Println("[/s](", packet.SessionID, "): ", packet.Text)
 }
 
 func handleYellMessage(packet shared.YellCmdPacket) {
-	fmt.Print("[/y](", packet.SessionID, "): ", packet.Text)
+	fmt.Println("[/y](", packet.SessionID, "): ", packet.Text)
 }
 
 func handleOocMessage(packet shared.OocCmdPacket) {
-	fmt.Print("[/ooc](", packet.SessionID, "): ", packet.Text)
+	fmt.Println("[/ooc](", packet.SessionID, "): ", packet.Text)
 }
 
 func handleHelpMessage(packet shared.HelpCmdPacket) {
-	fmt.Print("[/h](", packet.SessionID, "): ", packet.Text)
+	fmt.Println("[/h](", packet.SessionID, "): ", packet.Text)
 }
 
 func handlePartyMessage(packet shared.PchatCmdPacket) {
-	fmt.Print("[/p](", packet.SessionID, "): ", packet.Text)
+	fmt.Println("[/p](", packet.SessionID, "): ", packet.Text)
 }
 
 func handleGuildMessage(packet shared.GchatCmdPacket) {
-	fmt.Print("[/g](", packet.SessionID, "): ", packet.Text)
+	fmt.Println("[/g](", packet.SessionID, "): ", packet.Text)
 }
 
 func handleWhisperMessage(packet shared.WhisperCmdPacket) {
-	fmt.Print("[/w target](", packet.SessionID, " -> ", packet.Target, "): ", packet.Text)
+	fmt.Println("[/w target](", packet.SessionID, " -> ", packet.Target, "): ", packet.Text)
+
 }

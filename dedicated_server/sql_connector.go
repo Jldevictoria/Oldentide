@@ -571,7 +571,7 @@ func pushNpcs([]shared.Npc) {
 }
 
 func getCharacterList(accountName string) []string {
-	rows, err := db.Query("SELECT firstname FROM players INNER JOIN accounts ON players.accountID=accounts.id WHERE accountname=?", accountName)
+	rows, err := db.Query("SELECT firstname FROM players INNER JOIN accounts ON players.account_id=accounts.id WHERE accountname=?", accountName)
 	shared.CheckErr(err)
 	defer rows.Close()
 	var accountCharacters []string
@@ -585,7 +585,7 @@ func getCharacterList(accountName string) []string {
 }
 
 func getRemainingPlayerSlots(accountName string, maxPlayerSlots int) int {
-	rows, err := db.Query("SELECT * FROM players INNER JOIN accounts ON players.accountID=accounts.id WHERE accountname=?", accountName)
+	rows, err := db.Query("SELECT * FROM players INNER JOIN accounts ON players.account_id=accounts.id WHERE accountname=?", accountName)
 	shared.CheckErr(err)
 	defer rows.Close()
 	numPlayers := maxPlayerSlots
@@ -615,7 +615,7 @@ func getAccountIDFromAccountName(accountName string) int32 {
 
 func addNewPlayer(player shared.Pc) {
 	// Need to add this...
-	ins, err := db.Prepare("INSERT INTO players(accountID, firstname, lastname, guild, race, gender, face, skin, profession, alive, level, dp, hp, maxhp, bp, maxbp, mp, maxmp, ep, maxep, strength, constitution, intelligence, dexterity, axe, dagger, unarmed, hammer, polearm, spear, staff, sword, archery, crossbow, sling, thrown, armor, dualweapon, shield, bardic, conjuring, druidic, illusion, necromancy, sorcery, shamanic, spellcraft, summoning, focus, armorsmithing, tailoring, fletching, weaponsmithing, alchemy, lapidary, calligraphy, enchanting, herbalism, hunting, mining, bargaining, camping, firstaid, lore, picklocks, scouting, search, stealth, traps, aeolandis, hieroform, highgundis, oldpraxic, praxic, runic, head, chest, arms, hands, legs, feet, cloak, necklace, ringone, ringtwo, righthand, lefthand, zone, x, y, z, direction) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+	ins, err := db.Prepare("INSERT INTO players(account_id, firstname, lastname, guild, race, gender, face, skin, profession, alive, level, dp, hp, maxhp, bp, maxbp, mp, maxmp, ep, maxep, strength, constitution, intelligence, dexterity, axe, dagger, unarmed, hammer, polearm, spear, staff, sword, archery, crossbow, sling, thrown, armor, dualweapon, shield, bardic, conjuring, druidic, illusion, necromancy, sorcery, shamanic, spellcraft, summoning, focus, armorsmithing, tailoring, fletching, weaponsmithing, alchemy, lapidary, calligraphy, enchanting, herbalism, hunting, mining, bargaining, camping, firstaid, lore, picklocks, scouting, search, stealth, traps, aeolandis, hieroform, highgundis, oldpraxic, praxic, runic, head, chest, arms, hands, legs, feet, cloak, necklace, ringone, ringtwo, righthand, lefthand, zone, x, y, z, direction) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	shared.CheckErr(err)
 	// Try to populate and execute an SQL statment.
 	_, err = ins.Exec(
