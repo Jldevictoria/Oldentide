@@ -8,8 +8,8 @@ package shared
 import (
 	"crypto/sha256"
 	"encoding/base64"
-    "encoding/json"
-    "fmt"
+	"encoding/json"
+	"fmt"
 	"log"
 	"math/rand"
 	"os"
@@ -18,20 +18,21 @@ import (
 	"runtime"
 )
 
-// Simple function to check the error status of an operation.
+// CheckErr checks the error status of an operation.
 func CheckErr(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
+// IfErrPrintErr checks the error status of an operation and prints the error if it exists.
 func IfErrPrintErr(err error) {
 	if err != nil {
 		log.Println(err)
 	}
 }
 
-// Function that takes in a password and salt and hashes them together into a db safe key.
+// SaltAndHash takes in a password and salt and hashes them together into a db safe key.
 func SaltAndHash(password string, salt string) string {
 	hasher := sha256.New()
 	saltpass := password + salt
@@ -40,7 +41,7 @@ func SaltAndHash(password string, salt string) string {
 	return hash
 }
 
-// Util used to generate a string of lower and upper case letters.
+// GenerateRandomLetters is used to generate a string of lower and upper case letters.
 func GenerateRandomLetters(n int) string {
 	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 	key := make([]rune, n)
@@ -50,7 +51,7 @@ func GenerateRandomLetters(n int) string {
 	return string(key)
 }
 
-// Util used to generate a string of lowe and upper case letters and numbers.
+// GenerateRandomAlnums is used to generate a string of lowe and upper case letters and numbers.
 func GenerateRandomAlnums(n int) string {
 	var alnums = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 	key := make([]rune, n)
@@ -60,20 +61,19 @@ func GenerateRandomAlnums(n int) string {
 	return string(key)
 }
 
-// Validate a character name. 3-20 letters, alphabetic
-var regex_name = regexp.MustCompile("^[a-zA-Z]{3,20}$")
-
+// ValidateName will check that a character name fits within the rules; 3-20 letters, alphabetic.
 func ValidateName(name string) bool {
-	return regex_name.MatchString(name)
+	var regexName = regexp.MustCompile("^[a-zA-Z]{3,20}$")
+	return regexName.MatchString(name)
 }
 
-// Validate a username. 3-30 characters, alphanumeric
-var regex_username = regexp.MustCompile("^[a-zA-Z0-9]{3,20}$")
-
+// ValidateUsername will check that an account Username fits within the rules; 3-30 characters, alphanumeric.
 func ValidateUsername(name string) bool {
-	return regex_username.MatchString(name)
+	var regexUsername = regexp.MustCompile("^[a-zA-Z0-9]{3,20}$")
+	return regexUsername.MatchString(name)
 }
 
+// DefaultGOPATH will get the default GOPATH variable that is set up when you install Go.
 func DefaultGOPATH() string {
 	env := "HOME"
 	if runtime.GOOS == "windows" {
@@ -93,16 +93,18 @@ func DefaultGOPATH() string {
 	return ""
 }
 
+// Use is a go hack that lets you null use a variable or any interface to suppress errors when commenting code.
 func Use(vals ...interface{}) {
 	for _, val := range vals {
 		_ = val
 	}
 }
 
+// PrettyPrint is a very simple helper function that converts struct data to JSON for pretty printing to the command line.
 func PrettyPrint(v interface{}) (err error) {
-    b, err := json.MarshalIndent(v, "", "  ")
-    if err == nil {
-        fmt.Println(string(b))
-    }
-    return
+	b, err := json.MarshalIndent(v, "", "  ")
+	if err == nil {
+		fmt.Println(string(b))
+	}
+	return
 }

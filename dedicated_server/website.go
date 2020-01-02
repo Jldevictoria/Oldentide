@@ -8,12 +8,13 @@ package main
 import (
 	"Oldentide/shared"
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
 	"net/http"
 	"net/smtp"
 	"os"
 	"regexp"
 	"strconv"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var homereg = regexp.MustCompile("^/$")
@@ -45,20 +46,20 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 		"<p>Welcome to the Oldentide dedicated server running on %s.</p>"+
 		"<p>Account Registration:</p>"+
 		"<form name=\"registration\" method=\"post\" action=\"/register\" role=\"form\">"+
-		"<label for=\"registration_username\">Username (min 3)</label><br>"+
-		"<input type=\"text\" id=\"registration_username\" name=\"registration_username\" "+
+		"<label for=\"registrationUsername\">Username (min 3)</label><br>"+
+		"<input type=\"text\" id=\"registrationUsername\" name=\"registrationUsername\" "+
 		"placeholder=\"User\" required=\"required\" maxlength=\"30\" pattern=\"[A-Za-z0-9]{3,}\"><br>"+
-		"<label for=\"registration_email\">Email</label><br>"+
-		"<input type=\"email\" id=\"registration_email\" name=\"registration_email\" "+
+		"<label for=\"registrationEmail\">Email</label><br>"+
+		"<input type=\"email\" id=\"registrationEmail\" name=\"registrationEmail\" "+
 		"placeholder=\"user@domain.com\" required=\"required\"><br>"+
-		"<label for=\"registration_password_first\">Password (min 6)</label><br>"+
-		"<input type=\"password\" id=\"registration_password_first\" name=\"registration_password_first\" "+
+		"<label for=\"registrationPasswordFirst\">Password (min 6)</label><br>"+
+		"<input type=\"password\" id=\"registrationPasswordFirst\" name=\"registrationPasswordFirst\" "+
 		"placeholder=\"******\" required=\"required\" maxlength=\"30\" pattern=\".{6,}\"><br>"+
-		"<label for=\"registration_password_second\">Confirm (min 6)</label><br>"+
-		"<input type=\"password\" id=\"registration_password_second\" name=\"registration_password_second\" "+
+		"<label for=\"registrationPasswordSecond\">Confirm (min 6)</label><br>"+
+		"<input type=\"password\" id=\"registrationPasswordSecond\" name=\"registrationPasswordSecond\" "+
 		"placeholder=\"******\" required=\"required\" maxlength=\"30\" pattern=\".{6,}\" oninput=\"check(this)\"><br><br>"+
 		"<script language='javascript' type='text/javascript'> function check(input) { "+
-		"    if (input.value != document.getElementById('registration_password_first').value) "+
+		"    if (input.value != document.getElementById('registrationPasswordFirst').value) "+
 		"        { input.setCustomValidity('Password Must be Matching.'); "+
 		"    } else { input.setCustomValidity(''); }	} </script>"+
 		"<input class=\"button-primary\" type=\"submit\" value=\"Register\">"+
@@ -72,38 +73,38 @@ func registerPage(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Hi this should have the registration page.")
 	} else if r.Method == "POST" {
 		r.ParseForm()
-		registration_username := r.Form["registration_username"][0]
-		registration_email := r.Form["registration_email"][0]
-		registration_password_first := r.Form["registration_password_first"][0]
-		registration_password_second := r.Form["registration_password_second"][0]
-		if accountExists(registration_username) {
-			fmt.Fprintf(w, "An account with the username "+registration_username+
+		registrationUsername := r.Form["registrationUsername"][0]
+		registrationEmail := r.Form["registrationEmail"][0]
+		registrationPasswordFirst := r.Form["registrationPasswordFirst"][0]
+		registrationPasswordSecond := r.Form["registrationPasswordSecond"][0]
+		if accountExists(registrationUsername) {
+			fmt.Fprintf(w, "An account with the username "+registrationUsername+
 				" already exists.\n\nPlease go back and choose another.")
-		} else if emailExists(registration_email) {
+		} else if emailExists(registrationEmail) {
 			fmt.Fprintf(w, "An account is already associated with the email "+
-				registration_email+"\n\nPlease use a unique email.")
-		} else if registration_password_first == registration_password_second {
+				registrationEmail+"\n\nPlease use a unique email.")
+		} else if registrationPasswordFirst == registrationPasswordSecond {
 			// Generate a unique random verification key.
 			//findKey := true
 
-			verify_key := generateUniqueVerify(20)
-			salt_key := generateUniqueSalt(40)
-			hashed_key := shared.SaltAndHash(registration_password_first, salt_key)
+			verifyKey := generateUniqueVerify(20)
+			saltKey := generateUniqueSalt(40)
+			hashedKey := shared.SaltAndHash(registrationPasswordFirst, saltKey)
 
 			if everify {
 				// Create email message to send to user.
-				text_wport := ""
+				textWPort := ""
 				if wport != 80 {
-					text_wport = ":" + strconv.Itoa(wport)
+					textWPort = ":" + strconv.Itoa(wport)
 				}
-				msg := []byte("Hello " + registration_username +
+				msg := []byte("Hello " + registrationUsername +
 					"\n\nPlease verify your Oldentide account by clicking the following link: " +
-					"http://" + webadd + text_wport + "/verify/" + verify_key +
+					"http://" + webadd + textWPort + "/verify/" + verifyKey +
 					" \n\nRegards,\nOldentide Server Admin")
-				to := []string{registration_email}
+				to := []string{registrationEmail}
 
 				// Store user account information in the database!
-				if !createAccount(registration_username, registration_email, verify_key, hashed_key, salt_key) {
+				if !createAccount(registrationUsername, registrationEmail, verifyKey, hashedKey, saltKey) {
 					fmt.Fprint(w, "Account could not be created, it caused a database error")
 					return
 				}
@@ -115,17 +116,17 @@ func registerPage(w http.ResponseWriter, r *http.Request) {
 					"An email has been sent to verify this information:<br><br>"+
 					"Username: %s<br>Email: %s<br><br>"+
 					"<b>It may take up to 5 minutes for this email to arrive.</b></html>",
-					registration_username, registration_email)
+					registrationUsername, registrationEmail)
 			} else {
 				// Store user account information in the database!
-				if !createAccount(registration_username, registration_email, verify_key, hashed_key, salt_key) {
+				if !createAccount(registrationUsername, registrationEmail, verifyKey, hashedKey, saltKey) {
 					fmt.Fprint(w, "Account could not be created, it caused a database error")
 					return
 				}
 				fmt.Fprintf(w, "<html>You posted data to the register page.<br><br>"+
 					"Email verification is disabled, your account has been created.<br>"+
 					"Username: %s<br>Email: %s<br><br>"+
-					registration_username, registration_email)
+					registrationUsername, registrationEmail)
 			}
 		} else {
 			fmt.Fprintf(w, "Your passwords did not match...")
@@ -137,10 +138,10 @@ func registerPage(w http.ResponseWriter, r *http.Request) {
 
 // Web handler that uses the url key to validate email for an account.
 func verifyPage(w http.ResponseWriter, r *http.Request) {
-	verify_key := r.URL.Path[8:]
-	accountname := getAccountnameFromVerifyKey(verify_key)
+	verifyKey := r.URL.Path[8:]
+	accountname := getAccountnameFromVerifyKey(verifyKey)
 	if accountname == "" {
-		fmt.Fprintf(w, "No account found for verify key "+verify_key+".")
+		fmt.Fprintf(w, "No account found for verify key "+verifyKey+".")
 	} else {
 		if activateAccount(accountname) {
 			fmt.Fprintf(w, "Successfully verified account "+accountname+".")
@@ -169,25 +170,25 @@ func loginPage(w http.ResponseWriter, r *http.Request) {
 	// Get the salt of the user (the salt is public)
 	salt := getSaltFromAccount(username)
 	// Use the salt to get the hashed version of the given password.
-	supplied_hash := shared.SaltAndHash(password, salt)
+	suppliedHash := shared.SaltAndHash(password, salt)
 	// Get the hash key (password + salt) for the user from the database (the hash is private).
 	hash := getHashFromAccount(username)
 
-	if supplied_hash != hash {
+	if suppliedHash != hash {
 		http.Error(w, "Incorrect password", http.StatusUnauthorized)
 		fmt.Println("Username:", username, " tried to log in with the wrong password.")
 		return
 	}
 
-	// Return session_id and write session_id to db
-	session_id := generateUniqueSessionId() // sql_connector.go
-	if !setSessionId(username, session_id) {
+	// Return sessionID and write sessionID to db
+	sessionID := generateUniqueSessionID() // sql_connector.go
+	if !setSessionID(username, sessionID) {
 		http.Error(w, "Could not save the session ID to the DB", http.StatusInternalServerError)
 		return
 	}
 
-	fmt.Println("Username:", username, "Password:", password, "successfuly logged in and was awarded session_id:", session_id)
+	fmt.Println("Username:", username, "Password:", password, "successfuly logged in and was awarded sessionID:", sessionID)
 
 	// Success! Return the session id
-	fmt.Fprintf(w, strconv.FormatInt(session_id, 10))
+	fmt.Fprintf(w, strconv.FormatInt(sessionID, 10))
 }

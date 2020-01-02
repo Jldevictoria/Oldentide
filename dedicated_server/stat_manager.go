@@ -7,12 +7,11 @@ package main
 
 import "Oldentide/shared"
 
-func checkDp(su shared.Skillupdate) bool {
+func checkDp(su shared.SkillUpdate) bool {
 	if su.Predp > 100 {
 		return true
-	} else {
-		return false
 	}
+	return false
 }
 
 func validNewPlayer(p shared.Pc) bool {

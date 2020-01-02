@@ -22,30 +22,30 @@ import (
 	//"time"
 )
 
-func handleSayMessage(packet shared.Say_cmd_packet) {
-	fmt.Print("[/s](", packet.Session_id, "): ", packet.Text)
+func handleSayMessage(packet shared.SayCmdPacket) {
+	fmt.Print("[/s](", packet.SessionID, "): ", packet.Text)
 }
 
-func handleYellMessage(packet shared.Yell_cmd_packet) {
-	fmt.Print("[/y](", packet.Session_id, "): ", packet.Text)
+func handleYellMessage(packet shared.YellCmdPacket) {
+	fmt.Print("[/y](", packet.SessionID, "): ", packet.Text)
 }
 
-func handleOocMessage(packet shared.Ooc_cmd_packet) {
-	fmt.Print("[/ooc](", packet.Session_id, "): ", packet.Text)
+func handleOocMessage(packet shared.OocCmdPacket) {
+	fmt.Print("[/ooc](", packet.SessionID, "): ", packet.Text)
 }
 
-func handleHelpMessage(packet shared.Help_cmd_packet) {
-	fmt.Print("[/h](", packet.Session_id, "): ", packet.Text)
+func handleHelpMessage(packet shared.HelpCmdPacket) {
+	fmt.Print("[/h](", packet.SessionID, "): ", packet.Text)
 }
 
-func handlePartyMessage(packet shared.Pchat_cmd_packet) {
-	fmt.Print("[/p](", packet.Session_id, "): ", packet.Text)
+func handlePartyMessage(packet shared.PchatCmdPacket) {
+	fmt.Print("[/p](", packet.SessionID, "): ", packet.Text)
 }
 
-func handleGuildMessage(packet shared.Gchat_cmd_packet) {
-	fmt.Print("[/g](", packet.Session_id, "): ", packet.Text)
+func handleGuildMessage(packet shared.GchatCmdPacket) {
+	fmt.Print("[/g](", packet.SessionID, "): ", packet.Text)
 }
 
-func handleWhisperMessage(packet shared.Whisper_cmd_packet) {
-	fmt.Print("[/w target](", packet.Session_id, " -> ", packet.Target, "): ", packet.Text)
+func handleWhisperMessage(packet shared.WhisperCmdPacket) {
+	fmt.Print("[/w target](", packet.SessionID, " -> ", packet.Target, "): ", packet.Text)
 }

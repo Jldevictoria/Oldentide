@@ -10,12 +10,13 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"github.com/vmihailenco/msgpack"
 	"math/rand"
 	"net"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/vmihailenco/msgpack"
 )
 
 // Global program variables.
@@ -53,9 +54,9 @@ func main() {
 
 	// Set up server connection.
 	// Create udp socket description struct.
-	server_connection, err := net.Dial("udp", sadd+":"+strconv.Itoa(sport))
+	serverConnection, err := net.Dial("udp", sadd+":"+strconv.Itoa(sport))
 	shared.CheckErr(err)
-	defer server_connection.Close()
+	defer serverConnection.Close()
 
 	inreader := bufio.NewReader(os.Stdin)
 
@@ -66,102 +67,102 @@ func main() {
 		fmt.Println("You probably meant to give me a test number.  (-test=[number])")
 		break
 	case 1: // SPAM
-		pac := shared.Opcode_packet{Opcode: shared.GENERIC}
+		pac := shared.OpcodePacket{Opcode: shared.GENERIC}
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
 		for i := 0; i < 100000; i++ {
-			server_connection.Write(reqpac)
+			serverConnection.Write(reqpac)
 			fmt.Println(i)
 		}
 		break
 	case 2: // create a character.
-		p := make_player("Joe")
-		pac := shared.Create_player_packet{Opcode: shared.CREATEPLAYER, Pc: p}
+		p := makePlayer("Joe")
+		pac := shared.CreatePlayerPacket{Opcode: shared.CREATEPLAYER, Pc: p}
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
-		server_connection.Write(reqpac)
+		serverConnection.Write(reqpac)
 		break
 	case 3: // Request haracter list.
-		pac := shared.Req_clist_packet{Opcode: shared.REQCLIST, Account: "test"}
+		pac := shared.ReqClistPacket{Opcode: shared.REQCLIST, Account: "test"}
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
-		server_connection.Write(reqpac)
+		serverConnection.Write(reqpac)
 		break
 	case 4: // Say message
-		pac := shared.Say_cmd_packet{Opcode: shared.SAYCMD, Session_id: rand.Int63()}
+		pac := shared.SayCmdPacket{Opcode: shared.SAYCMD, SessionID: rand.Int63()}
 		fmt.Println("Enter say message:")
 		pac.Text, _ = inreader.ReadString('\n')
 		fmt.Println(pac)
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
-		server_connection.Write(reqpac)
+		serverConnection.Write(reqpac)
 		break
 	case 5: // Yell message
-		pac := shared.Yell_cmd_packet{Opcode: shared.YELLCMD, Session_id: rand.Int63()}
+		pac := shared.YellCmdPacket{Opcode: shared.YELLCMD, SessionID: rand.Int63()}
 		fmt.Println("Enter yell message:")
 		pac.Text, _ = inreader.ReadString('\n')
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
-		server_connection.Write(reqpac)
+		serverConnection.Write(reqpac)
 		break
 	case 6: // Ooc message
-		pac := shared.Ooc_cmd_packet{Opcode: shared.OOCCMD, Session_id: rand.Int63()}
+		pac := shared.OocCmdPacket{Opcode: shared.OOCCMD, SessionID: rand.Int63()}
 		fmt.Println("Enter ooc message:")
 		pac.Text, _ = inreader.ReadString('\n')
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
-		server_connection.Write(reqpac)
+		serverConnection.Write(reqpac)
 		break
 	case 7: // Help message
-		pac := shared.Help_cmd_packet{Opcode: shared.HELPCMD, Session_id: rand.Int63()}
+		pac := shared.HelpCmdPacket{Opcode: shared.HELPCMD, SessionID: rand.Int63()}
 		fmt.Println("Enter help message:")
 		pac.Text, _ = inreader.ReadString('\n')
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
-		server_connection.Write(reqpac)
+		serverConnection.Write(reqpac)
 		break
 	case 8: // Pchat message
-		pac := shared.Pchat_cmd_packet{Opcode: shared.PCHATCMD, Session_id: rand.Int63()}
+		pac := shared.PchatCmdPacket{Opcode: shared.PCHATCMD, SessionID: rand.Int63()}
 		fmt.Println("Enter party chat message:")
 		pac.Text, _ = inreader.ReadString('\n')
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
-		server_connection.Write(reqpac)
+		serverConnection.Write(reqpac)
 		break
 	case 9: // Gchat message
-		pac := shared.Gchat_cmd_packet{Opcode: shared.GCHATCMD, Session_id: rand.Int63()}
+		pac := shared.GchatCmdPacket{Opcode: shared.GCHATCMD, SessionID: rand.Int63()}
 		fmt.Println("Enter guild chat message:")
 		pac.Text, _ = inreader.ReadString('\n')
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
-		server_connection.Write(reqpac)
+		serverConnection.Write(reqpac)
 		break
 	case 10: // Whisper message
-		pac := shared.Whisper_cmd_packet{Opcode: shared.WHISPERCMD, Session_id: rand.Int63()}
+		pac := shared.WhisperCmdPacket{Opcode: shared.WHISPERCMD, SessionID: rand.Int63()}
 		fmt.Println("Enter targer name:")
 		fmt.Scanf("%s", &pac.Target)
 		fmt.Println("Enter whisper message:")
 		pac.Text, _ = inreader.ReadString('\n')
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
-		server_connection.Write(reqpac)
+		serverConnection.Write(reqpac)
 		break
 	case 11: // Move player
-		pac := shared.Move_player_packet{Opcode: shared.MOVEPLAYER, Session_id: rand.Int63(), X: rand.Float32(), Y: rand.Float32(), Z: rand.Float32(), Direction: rand.Float32()}
+		pac := shared.MovePlayerPacket{Opcode: shared.MOVEPLAYER, SessionID: rand.Int63(), X: rand.Float32(), Y: rand.Float32(), Z: rand.Float32(), Direction: rand.Float32()}
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
-		server_connection.Write(reqpac)
+		serverConnection.Write(reqpac)
 		break
 	default:
 		fmt.Println("You need to give a valid test number.  (-test=[number])")
 	}
 }
 
-// Simple function to check the error status of an operation.
-func make_player(name string) shared.Pc {
+// makePlayer creates a sample player for testing the server.
+func makePlayer(name string) shared.Pc {
 	return shared.Pc{
-		Id:             0,
-		Accountid:      0,
+		ID:             0,
+		AccountID:      0,
 		Firstname:      name,
 		Lastname:       "Mc" + name + "face",
 		Guild:          "Gremlins",

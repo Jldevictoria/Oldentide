@@ -7,6 +7,7 @@ package main
 
 import "Oldentide/shared"
 
+// Session is an integer that represents the session id of the player
 type Session int64
 
 var players = make(map[int64]*shared.Pc)

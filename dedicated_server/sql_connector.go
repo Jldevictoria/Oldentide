@@ -5,12 +5,16 @@
 
 package main
 
-import "Oldentide/shared"
-import "database/sql"
-import "fmt"
-import "log"
-import "math/rand"
-import "strconv"
+import (
+	"Oldentide/shared"
+	"database/sql"
+	"fmt"
+	"log"
+	"math/rand"
+	"strconv"
+
+	_ "github.com/mattn/go-sqlite3"
+)
 
 // Check if the account name is already taken in the database.
 func accountExists(a string) bool {
@@ -24,17 +28,16 @@ func emailExists(e string) bool {
 	return foundInRows(rows, err)
 }
 
-func createAccount(accountname string, email string, verify_key string, hashed_key string, salt_key string) bool {
+func createAccount(accountname string, email string, verifyKey string, hashedKey string, saltKey string) bool {
 	// Prepare insert statement.
 	ins, err := db.Prepare("INSERT INTO accounts(valid, banned, accountname, email, gamesession, playing, verify, hash, salt) values(?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	shared.CheckErr(err)
 	// Try to populate and execute an SQL statment.
-	_, err = ins.Exec("0", "0", accountname, email, "0", "0", verify_key, hashed_key, salt_key)
+	_, err = ins.Exec("0", "0", accountname, email, "0", "0", verifyKey, hashedKey, saltKey)
 	if err == nil {
 		return true
-	} else {
-		return false
 	}
+	return false
 }
 
 func getAccountnameFromVerifyKey(k string) string {
@@ -76,14 +79,13 @@ func getHashFromAccount(account string) string {
 	return hash
 }
 
-func setSessionId(account string, session_id int64) bool {
+func setSessionID(account string, sessionID int64) bool {
 	update, err := db.Prepare("UPDATE accounts SET gamesession=? WHERE accountname=?")
-	_, err = update.Exec(session_id, account)
+	_, err = update.Exec(sessionID, account)
 	if err == nil {
 		return true
-	} else {
-		return false
 	}
+	return false
 }
 
 func activateAccount(a string) bool {
@@ -91,9 +93,8 @@ func activateAccount(a string) bool {
 	_, err = update.Exec("1", a)
 	if err == nil {
 		return true
-	} else {
-		return false
 	}
+	return false
 }
 
 func banAccount(a string) bool {
@@ -101,20 +102,19 @@ func banAccount(a string) bool {
 	_, err = ban.Exec("1", a)
 	if err == nil {
 		return true
-	} else {
-		return false
 	}
+	return false
 }
 
 // Queries the db to make sure that we are generating a truly unique verify key.
 func generateUniqueVerify(n int) string {
 	findKey := true
 	for findKey {
-		verify_key := shared.GenerateRandomLetters(n)
-		rows, err := db.Query("SELECT accountname FROM accounts WHERE verify='" + verify_key + "'")
+		verifyKey := shared.GenerateRandomLetters(n)
+		rows, err := db.Query("SELECT accountname FROM accounts WHERE verify='" + verifyKey + "'")
 		//ifErrPrintErr(err)
 		if !foundInRows(rows, err) {
-			return verify_key
+			return verifyKey
 		}
 	}
 	return ""
@@ -124,24 +124,24 @@ func generateUniqueVerify(n int) string {
 func generateUniqueSalt(n int) string {
 	findKey := true
 	for findKey {
-		salt_key := shared.GenerateRandomLetters(n)
-		rows, err := db.Query("SELECT accountname FROM accounts WHERE salt='" + salt_key + "'")
+		saltKey := shared.GenerateRandomLetters(n)
+		rows, err := db.Query("SELECT accountname FROM accounts WHERE salt='" + saltKey + "'")
 		if !foundInRows(rows, err) {
-			return salt_key
+			return saltKey
 		}
 	}
 	return ""
 }
 
-func generateUniqueSessionId() int64 {
+func generateUniqueSessionID() int64 {
 	findSession := true
 	for findSession {
-		random_session := strconv.FormatInt(rand.Int63(), 10)
-		rows, err := db.Query("SELECT accountname FROM accounts WHERE gamesession='" + random_session + "'")
+		randomSession := strconv.FormatInt(rand.Int63(), 10)
+		rows, err := db.Query("SELECT accountname FROM accounts WHERE gamesession='" + randomSession + "'")
 		if !foundInRows(rows, err) {
-			session_id, err := strconv.ParseInt(random_session, 10, 64)
+			sessionID, err := strconv.ParseInt(randomSession, 10, 64)
 			shared.CheckErr(err)
-			return session_id
+			return sessionID
 		}
 	}
 	return 0
@@ -179,8 +179,8 @@ func pcRowsToStruct(rows *sql.Rows) []shared.Pc {
 	for rows.Next() {
 		var pc shared.Pc
 		err = rows.Scan(
-			&pc.Id,
-			&pc.Accountid,
+			&pc.ID,
+			&pc.AccountID,
 			&pc.Firstname,
 			&pc.Lastname,
 			&pc.Guild,
@@ -286,7 +286,7 @@ func pullNpcs() []shared.Npc {
 	for rows.Next() {
 		var npc shared.Npc
 		err = rows.Scan(
-			&npc.Id,
+			&npc.ID,
 			&npc.Firstname,
 			&npc.Lastname,
 			&npc.Guild,
@@ -330,296 +330,296 @@ func pullNpcs() []shared.Npc {
 	return npcs
 }
 
-func pullItemTemplates() []shared.Item_template {
+func pullItemTemplates() []shared.ItemTemplate {
 	rows, err := db.Query("Select * FROM item_templates")
 	defer rows.Close()
-	var item_templates []shared.Item_template
+	var itemTemplates []shared.ItemTemplate
 	for rows.Next() {
-		var item_template shared.Item_template
+		var itemTemplate shared.ItemTemplate
 		err = rows.Scan(
-			&item_template.Id,
-			&item_template.Name,
-			&item_template.True_name,
-			&item_template.Lore_level,
-			&item_template.Item_type,
-			&item_template.Slot,
-			&item_template.Icon,
-			&item_template.Weight,
-			&item_template.Encumbrance,
-			&item_template.Dyeable,
-			&item_template.Stackable,
-			&item_template.Stack_size,
-			&item_template.Usable,
-			&item_template.Equipable,
-			&item_template.Base_price,
-			&item_template.Strength_requirement,
-			&item_template.Constitution_requirement,
-			&item_template.Intelligence_requirement,
-			&item_template.Dexterity_requirement,
-			&item_template.Skill_type_0,
-			&item_template.Skill_requirement_0,
-			&item_template.Skill_type_1,
-			&item_template.Skill_requirement_1,
-			&item_template.Skill_type_2,
-			&item_template.Skill_requirement_2,
-			&item_template.Skill_type_3,
-			&item_template.Skill_requirement_3,
-			&item_template.Skill_type_4,
-			&item_template.Skill_requirement_4,
-			&item_template.Description,
-			&item_template.True_description,
+			&itemTemplate.ID,
+			&itemTemplate.Name,
+			&itemTemplate.TrueName,
+			&itemTemplate.LoreLevel,
+			&itemTemplate.ItemType,
+			&itemTemplate.Slot,
+			&itemTemplate.Icon,
+			&itemTemplate.Weight,
+			&itemTemplate.Encumbrance,
+			&itemTemplate.Dyeable,
+			&itemTemplate.Stackable,
+			&itemTemplate.StackSize,
+			&itemTemplate.Usable,
+			&itemTemplate.Equipable,
+			&itemTemplate.BasePrice,
+			&itemTemplate.StrengthRequirement,
+			&itemTemplate.ConstitutionRequirement,
+			&itemTemplate.IntelligenceRequirement,
+			&itemTemplate.DexterityRequirement,
+			&itemTemplate.SkillType0,
+			&itemTemplate.SkillRequirement0,
+			&itemTemplate.SkillType1,
+			&itemTemplate.SkillRequirement1,
+			&itemTemplate.SkillType2,
+			&itemTemplate.SkillRequirement2,
+			&itemTemplate.SkillType3,
+			&itemTemplate.SkillRequirement3,
+			&itemTemplate.SkillType4,
+			&itemTemplate.SkillRequirement4,
+			&itemTemplate.Description,
+			&itemTemplate.TrueDescription,
 		)
 		shared.CheckErr(err)
-		item_templates = append(item_templates, item_template)
+		itemTemplates = append(itemTemplates, itemTemplate)
 	}
-	return item_templates
+	return itemTemplates
 }
 
-func pullSpellTemplates() []shared.Spell_template {
+func pullSpellTemplates() []shared.SpellTemplate {
 	rows, err := db.Query("Select * FROM spell_templates")
 	defer rows.Close()
-	var spell_templates []shared.Spell_template
+	var spellTemplates []shared.SpellTemplate
 	for rows.Next() {
-		var spell_template shared.Spell_template
+		var spellTemplate shared.SpellTemplate
 		err = rows.Scan(
-			&spell_template.Id,
-			&spell_template.Spellname,
-			&spell_template.School,
-			&spell_template.Level,
-			&spell_template.Type,
-			&spell_template.Target,
-			&spell_template.Range,
-			&spell_template.Accuracy,
-			&spell_template.Preparation_time,
-			&spell_template.Recovery_time,
-			&spell_template.Effect_1,
-			&spell_template.Effect_2,
-			&spell_template.Effect_3,
-			&spell_template.Effect_4,
-			&spell_template.Effect_5,
-			&spell_template.Description,
+			&spellTemplate.ID,
+			&spellTemplate.Spellname,
+			&spellTemplate.School,
+			&spellTemplate.Level,
+			&spellTemplate.Type,
+			&spellTemplate.Target,
+			&spellTemplate.Range,
+			&spellTemplate.Accuracy,
+			&spellTemplate.PreparationTime,
+			&spellTemplate.RecoveryTime,
+			&spellTemplate.Effect1,
+			&spellTemplate.Effect2,
+			&spellTemplate.Effect3,
+			&spellTemplate.Effect4,
+			&spellTemplate.Effect5,
+			&spellTemplate.Description,
 		)
 		shared.CheckErr(err)
-		spell_templates = append(spell_templates, spell_template)
+		spellTemplates = append(spellTemplates, spellTemplate)
 	}
-	return spell_templates
+	return spellTemplates
 }
 
-func pullRaceTemplates() []shared.Race_template {
+func pullRaceTemplates() []shared.RaceTemplate {
 	rows, err := db.Query("Select * FROM race_templates")
 	defer rows.Close()
-	var race_templates []shared.Race_template
+	var raceTemplates []shared.RaceTemplate
 	for rows.Next() {
-		var race_template shared.Race_template
+		var raceTemplate shared.RaceTemplate
 		err = rows.Scan(
-			&race_template.Id,
-			&race_template.Race,
-			&race_template.Strength_mod,
-			&race_template.Constitution_mod,
-			&race_template.Intelligence_mod,
-			&race_template.Dexterity_mod,
-			&race_template.Axe_mod,
-			&race_template.Dagger_mod,
-			&race_template.Unarmed_mod,
-			&race_template.Hammer_mod,
-			&race_template.Polearm_mod,
-			&race_template.Spear_mod,
-			&race_template.Staff_mod,
-			&race_template.Sword_mod,
-			&race_template.Archery_mod,
-			&race_template.Crossbow_mod,
-			&race_template.Sling_mod,
-			&race_template.Thrown_mod,
-			&race_template.Armor_mod,
-			&race_template.Dualweapon_mod,
-			&race_template.Shield_mod,
-			&race_template.Bardic_mod,
-			&race_template.Conjuring_mod,
-			&race_template.Druidic_mod,
-			&race_template.Illusion_mod,
-			&race_template.Necromancy_mod,
-			&race_template.Sorcery_mod,
-			&race_template.Shamanic_mod,
-			&race_template.Spellcraft_mod,
-			&race_template.Summoning_mod,
-			&race_template.Focus_mod,
-			&race_template.Armorsmithing_mod,
-			&race_template.Tailoring_mod,
-			&race_template.Fletching_mod,
-			&race_template.Weaponsmithing_mod,
-			&race_template.Alchemy_mod,
-			&race_template.Lapidary_mod,
-			&race_template.Calligraphy_mod,
-			&race_template.Enchanting_mod,
-			&race_template.Herbalism_mod,
-			&race_template.Hunting_mod,
-			&race_template.Mining_mod,
-			&race_template.Bargaining_mod,
-			&race_template.Camping_mod,
-			&race_template.Firstaid_mod,
-			&race_template.Lore_mod,
-			&race_template.Picklocks_mod,
-			&race_template.Scouting_mod,
-			&race_template.Search_mod,
-			&race_template.Stealth_mod,
-			&race_template.Traps_mod,
-			&race_template.Aeolandis_mod,
-			&race_template.Hieroform_mod,
-			&race_template.Highgundis_mod,
-			&race_template.Oldpraxic_mod,
-			&race_template.Praxic_mod,
-			&race_template.Runic_mod,
-			&race_template.Description,
+			&raceTemplate.ID,
+			&raceTemplate.Race,
+			&raceTemplate.StrengthMod,
+			&raceTemplate.ConstitutionMod,
+			&raceTemplate.IntelligenceMod,
+			&raceTemplate.DexterityMod,
+			&raceTemplate.AxeMod,
+			&raceTemplate.DaggerMod,
+			&raceTemplate.UnarmedMod,
+			&raceTemplate.HammerMod,
+			&raceTemplate.PolearmMod,
+			&raceTemplate.SpearMod,
+			&raceTemplate.StaffMod,
+			&raceTemplate.SwordMod,
+			&raceTemplate.ArcheryMod,
+			&raceTemplate.CrossbowMod,
+			&raceTemplate.SlingMod,
+			&raceTemplate.ThrownMod,
+			&raceTemplate.ArmorMod,
+			&raceTemplate.DualweaponMod,
+			&raceTemplate.ShieldMod,
+			&raceTemplate.BardicMod,
+			&raceTemplate.ConjuringMod,
+			&raceTemplate.DruidicMod,
+			&raceTemplate.IllusionMod,
+			&raceTemplate.NecromancyMod,
+			&raceTemplate.SorceryMod,
+			&raceTemplate.ShamanicMod,
+			&raceTemplate.SpellcraftMod,
+			&raceTemplate.SummoningMod,
+			&raceTemplate.FocusMod,
+			&raceTemplate.ArmorsmithingMod,
+			&raceTemplate.TailoringMod,
+			&raceTemplate.FletchingMod,
+			&raceTemplate.WeaponsmithingMod,
+			&raceTemplate.AlchemyMod,
+			&raceTemplate.LapidaryMod,
+			&raceTemplate.CalligraphyMod,
+			&raceTemplate.EnchantingMod,
+			&raceTemplate.HerbalismMod,
+			&raceTemplate.HuntingMod,
+			&raceTemplate.MiningMod,
+			&raceTemplate.BargainingMod,
+			&raceTemplate.CampingMod,
+			&raceTemplate.FirstaidMod,
+			&raceTemplate.LoreMod,
+			&raceTemplate.PicklocksMod,
+			&raceTemplate.ScoutingMod,
+			&raceTemplate.SearchMod,
+			&raceTemplate.StealthMod,
+			&raceTemplate.TrapsMod,
+			&raceTemplate.AeolandisMod,
+			&raceTemplate.HieroformMod,
+			&raceTemplate.HighgundisMod,
+			&raceTemplate.OldpraxicMod,
+			&raceTemplate.PraxicMod,
+			&raceTemplate.RunicMod,
+			&raceTemplate.Description,
 		)
 		shared.CheckErr(err)
-		race_templates = append(race_templates, race_template)
+		raceTemplates = append(raceTemplates, raceTemplate)
 	}
-	return race_templates
+	return raceTemplates
 }
 
-func pullProfessionTemplates() []shared.Profession_template {
-	rows, err := db.Query("Select * FROM Profession_templates")
+func pullProfessionTemplates() []shared.ProfessionTemplate {
+	rows, err := db.Query("Select * FROM profession_templates")
 	defer rows.Close()
-	var profession_templates []shared.Profession_template
+	var professionTemplates []shared.ProfessionTemplate
 	for rows.Next() {
-		var profession_template shared.Profession_template
+		var professionTemplate shared.ProfessionTemplate
 		err = rows.Scan(
-			&profession_template.Id,
-			&profession_template.Profession,
-			&profession_template.Hppl,
-			&profession_template.Mppl,
-			&profession_template.Strength_mod,
-			&profession_template.Constitution_mod,
-			&profession_template.Intelligence_mod,
-			&profession_template.Dexterity_mod,
-			&profession_template.Axe_mod,
-			&profession_template.Dagger_mod,
-			&profession_template.Unarmed_mod,
-			&profession_template.Hammer_mod,
-			&profession_template.Polearm_mod,
-			&profession_template.Spear_mod,
-			&profession_template.Staff_mod,
-			&profession_template.Sword_mod,
-			&profession_template.Archery_mod,
-			&profession_template.Crossbow_mod,
-			&profession_template.Sling_mod,
-			&profession_template.Thrown_mod,
-			&profession_template.Armor_mod,
-			&profession_template.Dualweapon_mod,
-			&profession_template.Shield_mod,
-			&profession_template.Bardic_mod,
-			&profession_template.Conjuring_mod,
-			&profession_template.Druidic_mod,
-			&profession_template.Illusion_mod,
-			&profession_template.Necromancy_mod,
-			&profession_template.Sorcery_mod,
-			&profession_template.Shamanic_mod,
-			&profession_template.Spellcraft_mod,
-			&profession_template.Summoning_mod,
-			&profession_template.Focus_mod,
-			&profession_template.Armorsmithing_mod,
-			&profession_template.Tailoring_mod,
-			&profession_template.Fletching_mod,
-			&profession_template.Weaponsmithing_mod,
-			&profession_template.Alchemy_mod,
-			&profession_template.Lapidary_mod,
-			&profession_template.Calligraphy_mod,
-			&profession_template.Enchanting_mod,
-			&profession_template.Herbalism_mod,
-			&profession_template.Hunting_mod,
-			&profession_template.Mining_mod,
-			&profession_template.Bargaining_mod,
-			&profession_template.Camping_mod,
-			&profession_template.Firstaid_mod,
-			&profession_template.Lore_mod,
-			&profession_template.Picklocks_mod,
-			&profession_template.Scouting_mod,
-			&profession_template.Search_mod,
-			&profession_template.Stealth_mod,
-			&profession_template.Traps_mod,
-			&profession_template.Aeolandis_mod,
-			&profession_template.Hieroform_mod,
-			&profession_template.Highgundis_mod,
-			&profession_template.Oldpraxic_mod,
-			&profession_template.Praxic_mod,
-			&profession_template.Runic_mod,
-			&profession_template.Skill_1_multi,
-			&profession_template.Skill_1_names,
-			&profession_template.Skill_1_value,
-			&profession_template.Skill_2_multi,
-			&profession_template.Skill_2_names,
-			&profession_template.Skill_2_value,
-			&profession_template.Skill_3_multi,
-			&profession_template.Skill_3_names,
-			&profession_template.Skill_3_value,
-			&profession_template.Skill_4_multi,
-			&profession_template.Skill_4_names,
-			&profession_template.Skill_4_value,
-			&profession_template.Skill_5_multi,
-			&profession_template.Skill_5_names,
-			&profession_template.Skill_5_value,
-			&profession_template.Description,
+			&professionTemplate.ID,
+			&professionTemplate.Profession,
+			&professionTemplate.Hppl,
+			&professionTemplate.Mppl,
+			&professionTemplate.StrengthMod,
+			&professionTemplate.ConstitutionMod,
+			&professionTemplate.IntelligenceMod,
+			&professionTemplate.DexterityMod,
+			&professionTemplate.AxeMod,
+			&professionTemplate.DaggerMod,
+			&professionTemplate.UnarmedMod,
+			&professionTemplate.HammerMod,
+			&professionTemplate.PolearmMod,
+			&professionTemplate.SpearMod,
+			&professionTemplate.StaffMod,
+			&professionTemplate.SwordMod,
+			&professionTemplate.ArcheryMod,
+			&professionTemplate.CrossbowMod,
+			&professionTemplate.SlingMod,
+			&professionTemplate.ThrownMod,
+			&professionTemplate.ArmorMod,
+			&professionTemplate.DualweaponMod,
+			&professionTemplate.ShieldMod,
+			&professionTemplate.BardicMod,
+			&professionTemplate.ConjuringMod,
+			&professionTemplate.DruidicMod,
+			&professionTemplate.IllusionMod,
+			&professionTemplate.NecromancyMod,
+			&professionTemplate.SorceryMod,
+			&professionTemplate.ShamanicMod,
+			&professionTemplate.SpellcraftMod,
+			&professionTemplate.SummoningMod,
+			&professionTemplate.FocusMod,
+			&professionTemplate.ArmorsmithingMod,
+			&professionTemplate.TailoringMod,
+			&professionTemplate.FletchingMod,
+			&professionTemplate.WeaponsmithingMod,
+			&professionTemplate.AlchemyMod,
+			&professionTemplate.LapidaryMod,
+			&professionTemplate.CalligraphyMod,
+			&professionTemplate.EnchantingMod,
+			&professionTemplate.HerbalismMod,
+			&professionTemplate.HuntingMod,
+			&professionTemplate.MiningMod,
+			&professionTemplate.BargainingMod,
+			&professionTemplate.CampingMod,
+			&professionTemplate.FirstaidMod,
+			&professionTemplate.LoreMod,
+			&professionTemplate.PicklocksMod,
+			&professionTemplate.ScoutingMod,
+			&professionTemplate.SearchMod,
+			&professionTemplate.StealthMod,
+			&professionTemplate.TrapsMod,
+			&professionTemplate.AeolandisMod,
+			&professionTemplate.HieroformMod,
+			&professionTemplate.HighgundisMod,
+			&professionTemplate.OldpraxicMod,
+			&professionTemplate.PraxicMod,
+			&professionTemplate.RunicMod,
+			&professionTemplate.SkillMulti1,
+			&professionTemplate.SkillNames1,
+			&professionTemplate.SkillValue1,
+			&professionTemplate.SkillMulti2,
+			&professionTemplate.SkillNames2,
+			&professionTemplate.SkillValue2,
+			&professionTemplate.SkillMulti3,
+			&professionTemplate.SkillNames3,
+			&professionTemplate.SkillValue3,
+			&professionTemplate.SkillMulti4,
+			&professionTemplate.SkillNames4,
+			&professionTemplate.SkillValue4,
+			&professionTemplate.SkillMulti5,
+			&professionTemplate.SkillNames5,
+			&professionTemplate.SkillValue5,
+			&professionTemplate.Description,
 		)
 		shared.CheckErr(err)
-		profession_templates = append(profession_templates, profession_template)
+		professionTemplates = append(professionTemplates, professionTemplate)
 	}
-	return profession_templates
+	return professionTemplates
 }
 
 func pushNpcs([]shared.Npc) {
 	fmt.Println("Not yet implemented")
 }
 
-func getCharacterList(account_name string) []string {
-	rows, err := db.Query("SELECT firstname FROM players INNER JOIN accounts ON players.account_id=accounts.id WHERE accountname=?", account_name)
+func getCharacterList(accountName string) []string {
+	rows, err := db.Query("SELECT firstname FROM players INNER JOIN accounts ON players.accountID=accounts.id WHERE accountname=?", accountName)
 	shared.CheckErr(err)
 	defer rows.Close()
-	var account_characters []string
+	var accountCharacters []string
 	for rows.Next() {
-		var character_name string
-		err = rows.Scan(&character_name)
+		var characterName string
+		err = rows.Scan(&characterName)
 		shared.CheckErr(err)
-		account_characters = append(account_characters, character_name)
+		accountCharacters = append(accountCharacters, characterName)
 	}
-	return account_characters
+	return accountCharacters
 }
 
-func getRemainingPlayerSlots(account_name string, max_player_slots int) int {
-	rows, err := db.Query("SELECT * FROM players INNER JOIN accounts ON players.account_id=accounts.id WHERE accountname=?", account_name)
+func getRemainingPlayerSlots(accountName string, maxPlayerSlots int) int {
+	rows, err := db.Query("SELECT * FROM players INNER JOIN accounts ON players.accountID=accounts.id WHERE accountname=?", accountName)
 	shared.CheckErr(err)
 	defer rows.Close()
-	num_players := max_player_slots
+	numPlayers := maxPlayerSlots
 	for rows.Next() {
-		num_players--
+		numPlayers--
 	}
-	return num_players
+	return numPlayers
 }
 
-func playerFirstNameTaken(player_firstname string) bool {
-	rows, err := db.Query("SELECT * FROM players WHERE firstname=?", player_firstname)
+func playerFirstNameTaken(playerFirstname string) bool {
+	rows, err := db.Query("SELECT * FROM players WHERE firstname=?", playerFirstname)
 	shared.CheckErr(err)
 	return foundInRows(rows, err)
 }
 
-func getAccountIdFromAccountName(account_name string) int32 {
-	rows, err := db.Query("SELECT id FROM accounts WHERE accountname=?", account_name)
+func getAccountIDFromAccountName(accountName string) int32 {
+	rows, err := db.Query("SELECT id FROM accounts WHERE accountname=?", accountName)
 	shared.CheckErr(err)
 	defer rows.Close()
-	var account_id int32
+	var accountID int32
 	for rows.Next() {
-		err = rows.Scan(&account_id)
+		err = rows.Scan(&accountID)
 		shared.CheckErr(err)
 	}
-	return account_id
+	return accountID
 }
 
 func addNewPlayer(player shared.Pc) {
 	// Need to add this...
-	ins, err := db.Prepare("INSERT INTO players(account_id, firstname, lastname, guild, race, gender, face, skin, profession, alive, level, dp, hp, maxhp, bp, maxbp, mp, maxmp, ep, maxep, strength, constitution, intelligence, dexterity, axe, dagger, unarmed, hammer, polearm, spear, staff, sword, archery, crossbow, sling, thrown, armor, dualweapon, shield, bardic, conjuring, druidic, illusion, necromancy, sorcery, shamanic, spellcraft, summoning, focus, armorsmithing, tailoring, fletching, weaponsmithing, alchemy, lapidary, calligraphy, enchanting, herbalism, hunting, mining, bargaining, camping, firstaid, lore, picklocks, scouting, search, stealth, traps, aeolandis, hieroform, highgundis, oldpraxic, praxic, runic, head, chest, arms, hands, legs, feet, cloak, necklace, ringone, ringtwo, righthand, lefthand, zone, x, y, z, direction) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+	ins, err := db.Prepare("INSERT INTO players(accountID, firstname, lastname, guild, race, gender, face, skin, profession, alive, level, dp, hp, maxhp, bp, maxbp, mp, maxmp, ep, maxep, strength, constitution, intelligence, dexterity, axe, dagger, unarmed, hammer, polearm, spear, staff, sword, archery, crossbow, sling, thrown, armor, dualweapon, shield, bardic, conjuring, druidic, illusion, necromancy, sorcery, shamanic, spellcraft, summoning, focus, armorsmithing, tailoring, fletching, weaponsmithing, alchemy, lapidary, calligraphy, enchanting, herbalism, hunting, mining, bargaining, camping, firstaid, lore, picklocks, scouting, search, stealth, traps, aeolandis, hieroform, highgundis, oldpraxic, praxic, runic, head, chest, arms, hands, legs, feet, cloak, necklace, ringone, ringtwo, righthand, lefthand, zone, x, y, z, direction) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	shared.CheckErr(err)
 	// Try to populate and execute an SQL statment.
 	_, err = ins.Exec(
-		player.Accountid,
+		player.AccountID,
 		player.Firstname,
 		player.Lastname,
 		player.Guild,

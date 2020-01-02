@@ -4,9 +4,10 @@
 
 package shared
 
+// Pc is a struct that contains all the information pertinent to a given player, name, health, mods etc...
 type Pc struct {
-	Id             int32
-	Accountid      int32
+	ID             int32
+	AccountID      int32
 	Firstname      string
 	Lastname       string
 	Guild          string
@@ -100,7 +101,8 @@ type Pc struct {
 	Direction      float32
 }
 
-type Skillupdate struct {
+// SkillUpdate is a struct that allows you to specify all of the skills that the player is trying to spend development points on.
+type SkillUpdate struct {
 	Playername     string
 	Predp          int32
 	Spenddp        int32
@@ -161,8 +163,9 @@ type Skillupdate struct {
 	Runic          int32
 }
 
+// Npc is a struct that contains all the information about an NPC that you would need in the game.
 type Npc struct {
-	Id           int32
+	ID           int32
 	Firstname    string
 	Lastname     string
 	Guild        string
@@ -201,199 +204,204 @@ type Npc struct {
 	Direction    float32
 }
 
-type Item_template struct {
-	Id                       int32
-	Name                     string
-	True_name                string
-	Lore_level               int32
-	Item_type                string
-	Slot                     string
-	Icon                     string
-	Weight                   float32
-	Encumbrance              float32
-	Dyeable                  bool
-	Stackable                bool
-	Stack_size               int32
-	Usable                   bool
-	Equipable                bool
-	Base_price               int32
-	Strength_requirement     int32
-	Constitution_requirement int32
-	Intelligence_requirement int32
-	Dexterity_requirement    int32
-	Skill_type_0             string
-	Skill_requirement_0      int32
-	Skill_type_1             string
-	Skill_requirement_1      int32
-	Skill_type_2             string
-	Skill_requirement_2      int32
-	Skill_type_3             string
-	Skill_requirement_3      int32
-	Skill_type_4             string
-	Skill_requirement_4      int32
-	Description              string
-	True_description         string
+// ItemTemplate is a struct that contains all of the relevant information about an item in game.
+type ItemTemplate struct {
+	ID                      int32
+	Name                    string
+	TrueName                string
+	LoreLevel               int32
+	ItemType                string
+	Slot                    string
+	Icon                    string
+	Weight                  float32
+	Encumbrance             float32
+	Dyeable                 bool
+	Stackable               bool
+	StackSize               int32
+	Usable                  bool
+	Equipable               bool
+	BasePrice               int32
+	StrengthRequirement     int32
+	ConstitutionRequirement int32
+	IntelligenceRequirement int32
+	DexterityRequirement    int32
+	SkillType0              string
+	SkillRequirement0       int32
+	SkillType1              string
+	SkillRequirement1       int32
+	SkillType2              string
+	SkillRequirement2       int32
+	SkillType3              string
+	SkillRequirement3       int32
+	SkillType4              string
+	SkillRequirement4       int32
+	Description             string
+	TrueDescription         string
 }
 
-type Spell_template struct {
-	Id               int32
-	Spellname        string
-	School           string
-	Level            int32
-	Type             string
-	Target           string
-	Range            float32
-	Accuracy         float32
-	Preparation_time int32
-	Recovery_time    int32
-	Effect_1         string
-	Effect_2         string
-	Effect_3         string
-	Effect_4         string
-	Effect_5         string
-	Description      string
+// SpellTemplate is a struct that contains all of the information describing a given spell in the game.
+type SpellTemplate struct {
+	ID              int32
+	Spellname       string
+	School          string
+	Level           int32
+	Type            string
+	Target          string
+	Range           float32
+	Accuracy        float32
+	PreparationTime int32
+	RecoveryTime    int32
+	Effect1         string
+	Effect2         string
+	Effect3         string
+	Effect4         string
+	Effect5         string
+	Description     string
 }
 
-type Race_template struct {
-	Id                 int
-	Race               string
-	Strength_mod       float32
-	Constitution_mod   float32
-	Intelligence_mod   float32
-	Dexterity_mod      float32
-	Axe_mod            float32
-	Dagger_mod         float32
-	Unarmed_mod        float32
-	Hammer_mod         float32
-	Polearm_mod        float32
-	Spear_mod          float32
-	Staff_mod          float32
-	Sword_mod          float32
-	Archery_mod        float32
-	Crossbow_mod       float32
-	Sling_mod          float32
-	Thrown_mod         float32
-	Armor_mod          float32
-	Dualweapon_mod     float32
-	Shield_mod         float32
-	Bardic_mod         float32
-	Conjuring_mod      float32
-	Druidic_mod        float32
-	Illusion_mod       float32
-	Necromancy_mod     float32
-	Sorcery_mod        float32
-	Shamanic_mod       float32
-	Spellcraft_mod     float32
-	Summoning_mod      float32
-	Focus_mod          float32
-	Armorsmithing_mod  float32
-	Tailoring_mod      float32
-	Fletching_mod      float32
-	Weaponsmithing_mod float32
-	Alchemy_mod        float32
-	Lapidary_mod       float32
-	Calligraphy_mod    float32
-	Enchanting_mod     float32
-	Herbalism_mod      float32
-	Hunting_mod        float32
-	Mining_mod         float32
-	Bargaining_mod     float32
-	Camping_mod        float32
-	Firstaid_mod       float32
-	Lore_mod           float32
-	Picklocks_mod      float32
-	Scouting_mod       float32
-	Search_mod         float32
-	Stealth_mod        float32
-	Traps_mod          float32
-	Aeolandis_mod      float32
-	Hieroform_mod      float32
-	Highgundis_mod     float32
-	Oldpraxic_mod      float32
-	Praxic_mod         float32
-	Runic_mod          float32
-	Description        string
+// RaceTemplate is a struct that contains all of the information describing a given race in the game.  It contains all of the racial modifiers.
+type RaceTemplate struct {
+	ID                int
+	Race              string
+	StrengthMod       float32
+	ConstitutionMod   float32
+	IntelligenceMod   float32
+	DexterityMod      float32
+	AxeMod            float32
+	DaggerMod         float32
+	UnarmedMod        float32
+	HammerMod         float32
+	PolearmMod        float32
+	SpearMod          float32
+	StaffMod          float32
+	SwordMod          float32
+	ArcheryMod        float32
+	CrossbowMod       float32
+	SlingMod          float32
+	ThrownMod         float32
+	ArmorMod          float32
+	DualweaponMod     float32
+	ShieldMod         float32
+	BardicMod         float32
+	ConjuringMod      float32
+	DruidicMod        float32
+	IllusionMod       float32
+	NecromancyMod     float32
+	SorceryMod        float32
+	ShamanicMod       float32
+	SpellcraftMod     float32
+	SummoningMod      float32
+	FocusMod          float32
+	ArmorsmithingMod  float32
+	TailoringMod      float32
+	FletchingMod      float32
+	WeaponsmithingMod float32
+	AlchemyMod        float32
+	LapidaryMod       float32
+	CalligraphyMod    float32
+	EnchantingMod     float32
+	HerbalismMod      float32
+	HuntingMod        float32
+	MiningMod         float32
+	BargainingMod     float32
+	CampingMod        float32
+	FirstaidMod       float32
+	LoreMod           float32
+	PicklocksMod      float32
+	ScoutingMod       float32
+	SearchMod         float32
+	StealthMod        float32
+	TrapsMod          float32
+	AeolandisMod      float32
+	HieroformMod      float32
+	HighgundisMod     float32
+	OldpraxicMod      float32
+	PraxicMod         float32
+	RunicMod          float32
+	Description       string
 }
 
-type Profession_template struct {
-	Id                 int
-	Profession         string
-	Hppl               int
-	Mppl               int
-	Strength_mod       float32
-	Constitution_mod   float32
-	Intelligence_mod   float32
-	Dexterity_mod      float32
-	Axe_mod            float32
-	Dagger_mod         float32
-	Unarmed_mod        float32
-	Hammer_mod         float32
-	Polearm_mod        float32
-	Spear_mod          float32
-	Staff_mod          float32
-	Sword_mod          float32
-	Archery_mod        float32
-	Crossbow_mod       float32
-	Sling_mod          float32
-	Thrown_mod         float32
-	Armor_mod          float32
-	Dualweapon_mod     float32
-	Shield_mod         float32
-	Bardic_mod         float32
-	Conjuring_mod      float32
-	Druidic_mod        float32
-	Illusion_mod       float32
-	Necromancy_mod     float32
-	Sorcery_mod        float32
-	Shamanic_mod       float32
-	Spellcraft_mod     float32
-	Summoning_mod      float32
-	Focus_mod          float32
-	Armorsmithing_mod  float32
-	Tailoring_mod      float32
-	Fletching_mod      float32
-	Weaponsmithing_mod float32
-	Alchemy_mod        float32
-	Lapidary_mod       float32
-	Calligraphy_mod    float32
-	Enchanting_mod     float32
-	Herbalism_mod      float32
-	Hunting_mod        float32
-	Mining_mod         float32
-	Bargaining_mod     float32
-	Camping_mod        float32
-	Firstaid_mod       float32
-	Lore_mod           float32
-	Picklocks_mod      float32
-	Scouting_mod       float32
-	Search_mod         float32
-	Stealth_mod        float32
-	Traps_mod          float32
-	Aeolandis_mod      float32
-	Hieroform_mod      float32
-	Highgundis_mod     float32
-	Oldpraxic_mod      float32
-	Praxic_mod         float32
-	Runic_mod          float32
-	Skill_1_multi      bool
-	Skill_1_names      string
-	Skill_1_value      float32
-	Skill_2_multi      bool
-	Skill_2_names      string
-	Skill_2_value      float32
-	Skill_3_multi      bool
-	Skill_3_names      string
-	Skill_3_value      float32
-	Skill_4_multi      bool
-	Skill_4_names      string
-	Skill_4_value      float32
-	Skill_5_multi      bool
-	Skill_5_names      string
-	Skill_5_value      float32
-	Description        string
+// ProfessionTemplate is a struct that contains all of the relevant information for how profession modifiers are defined in the game.
+type ProfessionTemplate struct {
+	ID                int
+	Profession        string
+	Hppl              int
+	Mppl              int
+	StrengthMod       float32
+	ConstitutionMod   float32
+	IntelligenceMod   float32
+	DexterityMod      float32
+	AxeMod            float32
+	DaggerMod         float32
+	UnarmedMod        float32
+	HammerMod         float32
+	PolearmMod        float32
+	SpearMod          float32
+	StaffMod          float32
+	SwordMod          float32
+	ArcheryMod        float32
+	CrossbowMod       float32
+	SlingMod          float32
+	ThrownMod         float32
+	ArmorMod          float32
+	DualweaponMod     float32
+	ShieldMod         float32
+	BardicMod         float32
+	ConjuringMod      float32
+	DruidicMod        float32
+	IllusionMod       float32
+	NecromancyMod     float32
+	SorceryMod        float32
+	ShamanicMod       float32
+	SpellcraftMod     float32
+	SummoningMod      float32
+	FocusMod          float32
+	ArmorsmithingMod  float32
+	TailoringMod      float32
+	FletchingMod      float32
+	WeaponsmithingMod float32
+	AlchemyMod        float32
+	LapidaryMod       float32
+	CalligraphyMod    float32
+	EnchantingMod     float32
+	HerbalismMod      float32
+	HuntingMod        float32
+	MiningMod         float32
+	BargainingMod     float32
+	CampingMod        float32
+	FirstaidMod       float32
+	LoreMod           float32
+	PicklocksMod      float32
+	ScoutingMod       float32
+	SearchMod         float32
+	StealthMod        float32
+	TrapsMod          float32
+	AeolandisMod      float32
+	HieroformMod      float32
+	HighgundisMod     float32
+	OldpraxicMod      float32
+	PraxicMod         float32
+	RunicMod          float32
+	SkillMulti1       bool
+	SkillNames1       string
+	SkillValue1       float32
+	SkillMulti2       bool
+	SkillNames2       string
+	SkillValue2       float32
+	SkillMulti3       bool
+	SkillNames3       string
+	SkillValue3       float32
+	SkillMulti4       bool
+	SkillNames4       string
+	SkillValue4       float32
+	SkillMulti5       bool
+	SkillNames5       string
+	SkillValue5       float32
+	Description       string
 }
 
-func Make_player(
+// MakePlayer is the meaty function we will use to validate new players being created.  It should reject requests that are not allowed by game rules.
+func MakePlayer(
 	fname string,
 	lname string,
 	gender string,
@@ -401,8 +409,8 @@ func Make_player(
 	skin string) Pc {
 
 	return Pc{
-		Id:             0,
-		Accountid:      0,
+		ID:             0,
+		AccountID:      0,
 		Firstname:      fname,
 		Lastname:       lname,
 		Guild:          "Gremlins",
@@ -497,11 +505,11 @@ func Make_player(
 	}
 }
 
-// Simple function to check the error status of an operation.
-func Test_make_player(name string) Pc {
+// TestMakePlayer is a test function for MakePlayer().
+func TestMakePlayer(name string) Pc {
 	return Pc{
-		Id:             0,
-		Accountid:      0,
+		ID:             0,
+		AccountID:      0,
 		Firstname:      name,
 		Lastname:       "Mc" + name + "face",
 		Guild:          "Gremlins",
