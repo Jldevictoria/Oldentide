@@ -8,12 +8,14 @@ package main
 import (
 	"Oldentide/shared"
 	"bufio"
+	"errors"
 	"flag"
 	"fmt"
 	"math/rand"
 	"net"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/vmihailenco/msgpack"
@@ -25,6 +27,7 @@ var sadd string
 var sport int
 var test int
 var sid int64
+var serverConnection net.Conn
 
 func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -56,120 +59,162 @@ func main() {
 
 	// Set up server connection.
 	// Create udp socket description struct.
-	serverConnection, err := net.Dial("udp", sadd+":"+strconv.Itoa(sport))
+	serverConnection, err = net.Dial("udp", sadd+":"+strconv.Itoa(sport))
 	shared.CheckErr(err)
 	defer serverConnection.Close()
 
-	inreader := bufio.NewReader(os.Stdin)
+	cline := bufio.NewReader(os.Stdin)
+	for {
+		fmt.Print("$ ")
+		command, err := cline.ReadString('\n')
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+		}
+		err = runCommand(command)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+		}
+	}
+}
 
-	fmt.Println("Executing test option ", test)
-
-	switch test {
-	case 0: // default case.
-		fmt.Println("You didnt test number.  (-test=[number])")
+func runCommand(command string) error {
+	command = strings.TrimSuffix(command, "\n")
+	commandTokens := strings.Fields(command)
+	switch commandTokens[0] {
+	case "/exit":
+		os.Exit(0)
 		break
-	case 1: // SPAM
+	case "/help":
+		fmt.Println("/exit - Quits this application.")
+		fmt.Println("/help - Prints this help test.")
+		fmt.Println("/spam <count> - Sends <count> number of generic packets at the server.")
+		fmt.Println("/newcharacter <account> <firstname> - Attempts to create a new character with specified <firstname> on the server for <account>.")
+		fmt.Println("/requestcharacterlist <account> - Gets the characters on the server for the specified <account>.")
+		fmt.Println("/s <any message> - Sends <any message> as a \"Say\" command.")
+		fmt.Println("/y <any message> - Sends <any message> as a \"Yell\" command.")
+		fmt.Println("/ooc <any message> - Sends <any message> as an \"Out of Character\" command.")
+		fmt.Println("/h <any message> - Sends <any message> as a \"Help\" command.")
+		fmt.Println("/p <any message> - Sends <any message> as a \"Party Chat\" command.")
+		fmt.Println("/g <any message> - Sends <any message> as a \"Guild Chat\" command.")
+		fmt.Println("/w <target_player> <any message> - Sends <any message> directly to <target_player> as a \"Whisper\" command.")
+		fmt.Println("/move <target_player> <x> <y> <z> <direction> - Moves the specified player character to <x>, <y>, <z>, <direction>.")
+		fmt.Println("/connect <target_player> - Attempts to connect <target_player> to the server.")
+		break
+	case "/spam":
+		if len(commandTokens) != 2 {
+			return errors.New("wrong arguments to /spam")
+		}
 		pac := shared.OpcodePacket{Opcode: shared.GENERIC}
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
-		for i := 0; i < 100000; i++ {
+		count, err := strconv.Atoi(commandTokens[1])
+		shared.CheckErr(err)
+		for i := 0; i < count; i++ {
 			serverConnection.Write(reqpac)
-			fmt.Println(i)
 		}
 		break
-	case 2: // create a character.
-		var pn string
-		fmt.Print("Please provide a player name: ")
-		fmt.Scanf("%s", &pn)
-		p := makePlayer(pn)
-		fmt.Print(p)
+	case "/newcharacter":
+		if len(commandTokens) != 3 {
+			return errors.New("wrong arguments to /newcharacter")
+		}
+		p := makePlayer(commandTokens[2])
 		pac := shared.CreatePlayerPacket{Opcode: shared.CREATEPLAYER, Pc: p}
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
 		serverConnection.Write(reqpac)
 		break
-	case 3: // Request haracter list.
-		pac := shared.ReqClistPacket{Opcode: shared.REQCLIST, Account: "test"}
+	case "/requestcharacterlist":
+		if len(commandTokens) != 2 {
+			return errors.New("wrong arguments to /requestcharacterlist")
+		}
+		pac := shared.ReqClistPacket{Opcode: shared.REQCLIST, Account: commandTokens[1]}
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
 		serverConnection.Write(reqpac)
 		break
-	case 4: // Say message
-		pac := shared.SayCmdPacket{Opcode: shared.SAYCMD, SessionID: sid}
-		fmt.Println("Enter say message:")
-		pac.Text, _ = inreader.ReadString('\n')
-		fmt.Println(pac)
+	case "/s":
+		pac := shared.SayCmdPacket{Opcode: shared.SAYCMD, SessionID: sid, Text: command[2:len(command)]}
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
 		serverConnection.Write(reqpac)
 		break
-	case 5: // Yell message
-		pac := shared.YellCmdPacket{Opcode: shared.YELLCMD, SessionID: sid}
-		fmt.Println("Enter yell message:")
-		pac.Text, _ = inreader.ReadString('\n')
+	case "/y":
+		pac := shared.YellCmdPacket{Opcode: shared.YELLCMD, SessionID: sid, Text: command[2:len(command)]}
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
 		serverConnection.Write(reqpac)
 		break
-	case 6: // Ooc message
-		pac := shared.OocCmdPacket{Opcode: shared.OOCCMD, SessionID: sid}
-		fmt.Println("Enter ooc message:")
-		pac.Text, _ = inreader.ReadString('\n')
+	case "/ooc":
+		pac := shared.OocCmdPacket{Opcode: shared.OOCCMD, SessionID: sid, Text: command[2:len(command)]}
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
 		serverConnection.Write(reqpac)
 		break
-	case 7: // Help message
-		pac := shared.HelpCmdPacket{Opcode: shared.HELPCMD, SessionID: sid}
-		fmt.Println("Enter help message:")
-		pac.Text, _ = inreader.ReadString('\n')
+	case "/h":
+		pac := shared.HelpCmdPacket{Opcode: shared.HELPCMD, SessionID: sid, Text: command[2:len(command)]}
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
 		serverConnection.Write(reqpac)
 		break
-	case 8: // Pchat message
-		pac := shared.PchatCmdPacket{Opcode: shared.PCHATCMD, SessionID: sid}
-		fmt.Println("Enter party chat message:")
-		pac.Text, _ = inreader.ReadString('\n')
+	case "/p":
+		pac := shared.PchatCmdPacket{Opcode: shared.PCHATCMD, SessionID: sid, Text: command[2:len(command)]}
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
 		serverConnection.Write(reqpac)
 		break
-	case 9: // Gchat message
-		pac := shared.GchatCmdPacket{Opcode: shared.GCHATCMD, SessionID: sid}
-		fmt.Println("Enter guild chat message:")
-		pac.Text, _ = inreader.ReadString('\n')
+	case "/g":
+		pac := shared.GchatCmdPacket{Opcode: shared.GCHATCMD, SessionID: sid, Text: command[2:len(command)]}
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
 		serverConnection.Write(reqpac)
 		break
-	case 10: // Whisper message
-		pac := shared.WhisperCmdPacket{Opcode: shared.WHISPERCMD, SessionID: sid}
-		fmt.Println("Enter targer name:")
-		fmt.Scanln(&pac.Target)
-		fmt.Println("Enter whisper message:")
-		fmt.Scanln(&pac.Text)
+	case "/w":
+		if len(commandTokens) < 3 {
+			return errors.New("not enough arguments to /w")
+		}
+		pac := shared.WhisperCmdPacket{
+			Opcode:    shared.WHISPERCMD,
+			SessionID: sid,
+			Target:    commandTokens[1],
+			Text:      strings.Replace(command[2:len(command)], " "+commandTokens[1], "", -1),
+		}
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
 		serverConnection.Write(reqpac)
 		break
-	case 11: // Move player
-		pac := shared.MovePlayerPacket{Opcode: shared.MOVEPLAYER, SessionID: sid, X: rand.Float32(), Y: rand.Float32(), Z: rand.Float32(), Direction: rand.Float32()}
+	case "/move":
+		if len(commandTokens) != 6 {
+			return errors.New("wrong enough arguments to /move")
+		}
+		pac := shared.MovePlayerPacket{Opcode: shared.MOVEPLAYER, SessionID: sid}
+		x, err := strconv.ParseFloat(commandTokens[1], 64)
+		shared.CheckErr(err)
+		y, err := strconv.ParseFloat(commandTokens[2], 64)
+		shared.CheckErr(err)
+		z, err := strconv.ParseFloat(commandTokens[3], 64)
+		shared.CheckErr(err)
+		direction, err := strconv.ParseFloat(commandTokens[4], 32)
+		pac.X = float32(x)
+		pac.Y = float32(y)
+		pac.Z = float32(z)
+		pac.Direction = float32(direction)
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
 		serverConnection.Write(reqpac)
 		break
-	case 12: // Connect a character
-		var pn string
-		fmt.Scanf("%s", &pn)
-		pac := shared.ConnectPacket{Opcode: shared.CONNECT, SessionID: sid, Character: pn}
+	case "/connect":
+		if len(commandTokens) != 2 {
+			return errors.New("not enough arguments to /connect")
+		}
+		pac := shared.ConnectPacket{Opcode: shared.CONNECT, SessionID: sid, Character: commandTokens[1]}
 		reqpac, err := msgpack.Marshal(pac)
 		shared.CheckErr(err)
 		serverConnection.Write(reqpac)
 		break
 	default:
-		fmt.Println("You need to give a valid test number.  (-test=[number])")
+		return errors.New("target command \"" + commandTokens[0] + "\" is not a valid command.")
 	}
+	return nil
 }
 
 // makePlayer creates a sample player for testing the server.

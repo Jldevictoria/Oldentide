@@ -128,7 +128,7 @@ func main() {
 	}
 
 	Pcs = pullPcs()
-	fmt.Println("\n* PCs listed in database.")
+	fmt.Println("\n* PCs populated from database.")
 	//if debug {
 	shared.PrettyPrint(Pcs)
 	//}
