@@ -27,6 +27,7 @@ var sadd string
 var sport int
 var test int
 var sid int64
+var gui bool
 var serverConnection net.Conn
 
 func init() {
@@ -35,6 +36,7 @@ func init() {
 	flag.IntVar(&sport, "port", 1337, "Port used for dedicated game server.")
 	flag.IntVar(&test, "test", 0, "Test number within the test_client that we want to call. If not given, it will default to a sample \"game\".")
 	flag.Int64Var(&sid, "session", rand.Int63(), "Session will allow you to force a SessionID for your packets.")
+	flag.BoolVar(&gui, "gui", false, "Define whether you want to use the gui option!")
 }
 
 func main() {
@@ -63,16 +65,20 @@ func main() {
 	shared.CheckErr(err)
 	defer serverConnection.Close()
 
-	cline := bufio.NewReader(os.Stdin)
-	for {
-		fmt.Print("$ ")
-		command, err := cline.ReadString('\n')
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
-		err = runCommand(command)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+	if gui {
+		fmt.Println("Will add in the future...")
+	} else {
+		cline := bufio.NewReader(os.Stdin)
+		for {
+			fmt.Print("$ ")
+			command, err := cline.ReadString('\n')
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+			}
+			err = runCommand(command)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+			}
 		}
 	}
 }
