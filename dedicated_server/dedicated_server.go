@@ -16,12 +16,10 @@ import (
 	"net/http"
 	"net/smtp"
 	"os"
-	_ "path/filepath"
 	"runtime"
 	"strconv"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/vmihailenco/msgpack"
 )
 
@@ -79,7 +77,7 @@ func main() {
 			log.Fatal("Please provide a Gmail email account with the command line flag -email=<email@gmail.com>")
 		}
 		if epass == "" {
-			log.Fatal("Please provide a Gmail email password with the command line flag -epass=<P@55word>")
+			log.Fatal("Please provide a Gmail email password with the command line flag -epass=<P@$$word>")
 		}
 	} else {
 		fmt.Println("Warning: website allowing account creation without email verification!")
@@ -127,19 +125,11 @@ func main() {
 		shared.PrettyPrint(SpellTemplates)
 	}
 
-	Pcs = pullPcs()
-	fmt.Println("\n* PCs populated from database.")
-	//if debug {
-	shared.PrettyPrint(Pcs)
-	//}
-
 	Npcs = pullNpcs()
 	fmt.Println("\n* NPCs populated from database.")
 	if debug {
 		shared.PrettyPrint(Npcs)
 	}
-
-	// inventories := pullInventories()
 
 	// --------------------------------------------------------------------------------------------
 	// Kick off http server for registration page.
@@ -255,7 +245,7 @@ func Handle(rawPacketQueue chan shared.RawPacket, quitChan chan bool, rid int) {
 				}
 				if validNewPlayer(decpac.Pc) {
 					addNewPlayer(decpac.Pc)
-					log.Println("Account <account> created a new player \"<player>\".")
+					log.Println("Account \"", accountName, "\" created a new player \"", playerName, "\".")
 				} else {
 					log.Println("Account is trying something fraudulent during account creation!")
 					//banAccount()
@@ -266,8 +256,8 @@ func Handle(rawPacketQueue chan shared.RawPacket, quitChan chan bool, rid int) {
 				var decpac shared.ConnectPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
 				shared.CheckErr(err)
-				if p, ok := Sessions[decpac.SessionID]; ok {
-					fmt.Println("Player", *p, "tried to connect twice.  Forcing full disconnect.")
+				if p, ok := SessionsPlayers[decpac.SessionID]; ok {
+					fmt.Println("Player" + p + "tried to connect twice.  Forcing full disconnect.")
 					// // Send a force disconnect packet.
 					// var retpac shared.DisconnectPacket
 					// retpac.Opcode = shared.DISCONNECT
@@ -275,16 +265,18 @@ func Handle(rawPacketQueue chan shared.RawPacket, quitChan chan bool, rid int) {
 					// var retbuf, err = msgpack.Marshal(retpac)
 					// shared.CheckErr(err)
 					// _, err = net.UDPConn.Write
-					// // Remove player from active sessions.
-					// var tp, _ = GetPlayerByFirstname(decpac.Character)
-					delete(Sessions, decpac.SessionID)
-					// delete(PlayerNameSessions, tp.Firstname)
+					delete(SessionsPlayers, decpac.SessionID)
+				} else if shared.CountUintStringMapInstances(SessionsPlayers, decpac.Firstname) > 0 {
+					fmt.Println("Session" + strconv.FormatUint(decpac.SessionID, 10) + "tried to connect to an already existing player.  Hacking!")
 				} else {
-					var tp, err = GetPlayerByFirstname(decpac.Character)
+					var pc, err = getPlayerByFirstname(decpac.Firstname)
+					fmt.Println(pc)
 					if err != nil {
 						fmt.Println(err)
 					} else {
-						Sessions[decpac.SessionID] = &tp
+						SessionsPlayers[decpac.SessionID] = pc.Firstname
+						Pcs[pc.Firstname] = &pc
+						fmt.Println(SessionsPlayers)
 					}
 				}
 				continue
@@ -293,8 +285,8 @@ func Handle(rawPacketQueue chan shared.RawPacket, quitChan chan bool, rid int) {
 				var decpac shared.DisconnectPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
 				shared.CheckErr(err)
-				if _, ok := Sessions[decpac.SessionID]; ok {
-					delete(Sessions, decpac.SessionID)
+				if _, ok := SessionsPlayers[decpac.SessionID]; ok {
+					delete(SessionsPlayers, decpac.SessionID)
 					// Send a force disconnect packet.
 				} else {
 					fmt.Println("Player with session", decpac.SessionID, "tried to disconnect, but was never connected...")
@@ -305,15 +297,13 @@ func Handle(rawPacketQueue chan shared.RawPacket, quitChan chan bool, rid int) {
 				var decpac shared.MovePlayerPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
 				shared.CheckErr(err)
-				var player *shared.Pc
-				Sessions[decpac.SessionID] = player
-				if player, ok := Sessions[decpac.SessionID]; ok {
-					fmt.Println(*player)
+				if player, ok := Pcs[SessionsPlayers[decpac.SessionID]]; ok {
+					fmt.Println(Pcs[SessionsPlayers[decpac.SessionID]])
 					player.X = decpac.X
 					player.Y = decpac.Y
 					player.Z = decpac.Z
 					player.Direction = decpac.Direction
-					fmt.Println(*player)
+					fmt.Println(Pcs[SessionsPlayers[decpac.SessionID]])
 				} else {
 					fmt.Println("Player did not exist in MOVEPLAYER case for session", decpac.SessionID)
 				}

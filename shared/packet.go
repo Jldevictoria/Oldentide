@@ -99,19 +99,19 @@ type EmptyPacket struct {
 // GenericPacket is a simple packet containing only an opcode (GENERIC) and a SessionID. BOTH - Used for debug.
 type GenericPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // AckPacket is the packet with Opcode (ACK) used for acknowledging reception of a packet.
 type AckPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // ErrorPacket is the packet with Opcode (ERROR) used to transmit knowledge of an error.
 type ErrorPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // ReqClistPacket is the packet with Opcode (REQCLIST)
@@ -129,45 +129,45 @@ type SendClistPacket struct {
 // CreatePlayerPacket is the packet with Opcode (CREATEPLAYER)
 type CreatePlayerPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 	Pc        Pc
 }
 
 // ConnectPacket is the packet with Opcode (CONNECT)
 type ConnectPacket struct {
 	Opcode    Opcode
-	SessionID int64
-	Character string
+	SessionID uint64
+	Firstname string
 }
 
 // DisconnectPacket is the packet with Opcode (DISCONNECT)
 type DisconnectPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // SendPlayerPacket is the packet with Opcode (SENDPLAYER)
 type SendPlayerPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // SendPcPacket is the packet with Opcode (SENDPC)
 type SendPcPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // SendNpcPacket is the packet with Opcode (SENDNPC)
 type SendNpcPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // MovePlayerPacket is the packet with Opcode (MOVEPLAYER)
 type MovePlayerPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 	X         float32
 	Y         float32
 	Z         float32
@@ -177,103 +177,103 @@ type MovePlayerPacket struct {
 // SpendDpPacket is the packet with Opcode (SPENDDP)
 type SpendDpPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // TalkCmdPacket is the packet with Opcode (TALKCMD)
 type TalkCmdPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // AttackCmdPacket is the packet with Opcode (ATTACKCMD)
 type AttackCmdPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // TradeCmdPacket is the packet with Opcode (TRADECMD)
 type TradeCmdPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // InviteCmdPacket is the packet with Opcode (INVITECMD)
 type InviteCmdPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // GuildInviteCmdPacket is the packet with Opcode (GINVITECMD)
 type GuildInviteCmdPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // GuildKickCmdPacket is the packet with Opcode (GKICK)
 type GuildKickCmdPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // GuildPromoteCmdPacket is the packet with Opcode (GPROMOTE)
 type GuildPromoteCmdPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // GuildDemoteCmdPacket is the packet with Opcode (GDEMOTE)
 type GuildDemoteCmdPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // SayCmdPacket is the packet with Opcode (SAYCMD)
 type SayCmdPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 	Text      string
 }
 
 // YellCmdPacket is the packet with Opcode (YELLCMD)
 type YellCmdPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 	Text      string
 }
 
 // OocCmdPacket is the packet with Opcode (OOCCMD)
 type OocCmdPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 	Text      string
 }
 
 // HelpCmdPacket is the packet with Opcode (HELPCMD)
 type HelpCmdPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 	Text      string
 }
 
 // PchatCmdPacket is the packet with Opcode (PCHATCMD)
 type PchatCmdPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 	Text      string
 }
 
 // GchatCmdPacket is the packet with Opcode (GCHATCMD)
 type GchatCmdPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 	Text      string
 }
 
 // WhisperCmdPacket is the packet with Opcode (WHISPERCMD)
 type WhisperCmdPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 	Target    string
 	Text      string
 }
@@ -281,191 +281,191 @@ type WhisperCmdPacket struct {
 // RelaySayPacket is the packet with Opcode (RELAYSAY)
 type RelaySayPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // RelayYellPacket is the packet with Opcode (RELAYYELL)
 type RelayYellPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // RelayOocPacket is the packet with Opcode (RELAYOOC)
 type RelayOocPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // RelayHelpPacket is the packet with Opcode (RELAYHELP)
 type RelayHelpPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // RelayPartyChatPacket is the packet with Opcode (RELAYPCHAT)
 type RelayPartyChatPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // RelayGuildChatPacket is the packet with Opcode (RELAYGCHAT)
 type RelayGuildChatPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // RelayWhisperPacket is the packet with Opcode (RELAYWHISPER)
 type RelayWhisperPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // ActivateCmdPacket is the packet with Opcode (ACTIVATECMD)
 type ActivateCmdPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // EnvironmentUpdatePacket is the packet with Opcode (ENVUPDATE)
 type EnvironmentUpdatePacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // DialogueTextPacket is the packet with Opcode (DIALOGUETEXT)
 type DialogueTextPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // DialogueCmdPacket is the packet with Opcode (DIALOGUECMD)
 type DialogueCmdPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // SendItemPacket is the packet with Opcode (SENDITEM)
 type SendItemPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // InitShopPacket is the packet with Opcode (INITSHOP)
 type InitShopPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // ShopItemPacket is the packet with Opcode (SHOPITEM)
 type ShopItemPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // BuyItemPacket is the packet with Opcode (BUYITEM)
 type BuyItemPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // InitLootPacket is the packet with Opcode (INITLOOT)
 type InitLootPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // LootItemPacket is the packet with Opcode (LOOTITEM)
 type LootItemPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // TakeLootPacket is the packet with Opcode (TAKELOOT)
 type TakeLootPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // InitTradePacket is the packet with Opcode (INITTRADE)
 type InitTradePacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // OfferItemPacket is the packet with Opcode (OFFERITEM)
 type OfferItemPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // PullItemPacket is the packet with Opcode (PULLITEM)
 type PullItemPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // TradeItemPacket is the packet with Opcode (TRADEITEM)
 type TradeItemPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // RemoveItemPacket is the packet with Opcode (REMITEM)
 type RemoveItemPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // AcceptTradePacket is the packet with Opcode (ACCTRADE)
 type AcceptTradePacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // UnacceptTradePacket is the packet with Opcode (UNACCTRADE)
 type UnacceptTradePacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // CommunicateTradePacket is the packet with Opcode (COMMTRADE)
 type CommunicateTradePacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // FinalizeTradePacket is the packet with Opcode (FINTRADE)
 type FinalizeTradePacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // InitCombatPacket is the packet with Opcode (INITCOMBAT)
 type InitCombatPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // AddNpcCombatPacket is the packet with Opcode (ADDNPCCOMBAT)
 type AddNpcCombatPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // AddPcCombatPacket is the packet with Opcode (ADDPCCOMBAT)
 type AddPcCombatPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // RemoveNpcCombatPacket is the packet with Opcode (REMNPCCOMBAT)
 type RemoveNpcCombatPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }
 
 // RemovePcCombatPacket is the packet with Opcode (REMPCCOMBAT)
 type RemovePcCombatPacket struct {
 	Opcode    Opcode
-	SessionID int64
+	SessionID uint64
 }

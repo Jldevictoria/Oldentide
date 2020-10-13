@@ -7,7 +7,6 @@ package main
 
 import (
 	"Oldentide/shared"
-	"fmt"
 	"net"
 )
 
@@ -24,26 +23,16 @@ var ItemTemplates []shared.ItemTemplate
 var SpellTemplates []shared.SpellTemplate
 
 // Pcs is the object that hold all the Pcs pulled from the database.
-var Pcs []shared.Pc
+var Pcs = make(map[string]*shared.Pc)
 
 // Npcs is the object that hold all the Npcs pulled from the database.
 var Npcs []shared.Npc
 
-// Sessions is a map that connects session IDs to player objects for maintaining the gamestate.
-var Sessions = make(map[int64]*shared.Pc)
+// SessionsPlayers is a map that connects session IDs to player objects for maintaining the gamestate.
+var SessionsPlayers = make(map[uint64]string)
 
 // SessionConnectionInfo is a map that connects session IDs to connection info for tracking players IP.
-var SessionConnectionInfo = make(map[int64]*net.UDPAddr)
+var SessionConnectionInfo = make(map[uint64]*net.UDPAddr)
 
 // PlayerNameSessions is a map that connects player names to their session ID, which is useful for sending commands to a given player by name.
-var PlayerNameSessions = make(map[string]int64)
-
-// GetPlayerByFirstname will look through all the recorded players and return the Pc object found under the given name.
-func GetPlayerByFirstname(firstname string) (shared.Pc, error) {
-	for _, tp := range Pcs {
-		if tp.Firstname == firstname {
-			return tp, nil
-		}
-	}
-	return *new(shared.Pc), fmt.Errorf("player %s does not exist", firstname)
-}
+var PlayerNameSessions = make(map[string]uint64)

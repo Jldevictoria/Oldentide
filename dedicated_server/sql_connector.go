@@ -160,21 +160,21 @@ func foundInRows(rows *sql.Rows, err error) bool {
 	return found
 }
 
-func pullPcs() []shared.Pc {
-	rows, err := db.Query("Select * FROM players")
+func getPlayerByFirstname(firstname string) (shared.Pc, error) {
+	rows, err := db.Query("Select * FROM players WHERE firstname=?", firstname)
 	defer rows.Close()
 	shared.CheckErr(err)
-	return pcRowsToStruct(rows)
+	return pcRowsToStruct(rows), err
 }
 
 func getPlayers(account string) []shared.Pc {
 	rows, err := db.Query("Select * FROM players WHERE account=?", account)
 	defer rows.Close()
 	shared.CheckErr(err)
-	return pcRowsToStruct(rows)
+	return pcsRowsToStruct(rows)
 }
 
-func pcRowsToStruct(rows *sql.Rows) []shared.Pc {
+func pcsRowsToStruct(rows *sql.Rows) []shared.Pc {
 	var pcs []shared.Pc
 	for rows.Next() {
 		var pc shared.Pc
@@ -277,6 +277,109 @@ func pcRowsToStruct(rows *sql.Rows) []shared.Pc {
 		pcs = append(pcs, pc)
 	}
 	return pcs
+}
+
+func pcRowsToStruct(rows *sql.Rows) shared.Pc {
+	var pc shared.Pc
+	for rows.Next() {
+		err = rows.Scan(
+			&pc.ID,
+			&pc.AccountID,
+			&pc.Firstname,
+			&pc.Lastname,
+			&pc.Guild,
+			&pc.Race,
+			&pc.Gender,
+			&pc.Face,
+			&pc.Skin,
+			&pc.Profession,
+			&pc.Alive,
+			&pc.Plevel,
+			&pc.Dp,
+			&pc.Hp,
+			&pc.Maxhp,
+			&pc.Bp,
+			&pc.Maxbp,
+			&pc.Mp,
+			&pc.Maxmp,
+			&pc.Ep,
+			&pc.Maxep,
+			&pc.Strength,
+			&pc.Constitution,
+			&pc.Intelligence,
+			&pc.Dexterity,
+			&pc.Axe,
+			&pc.Dagger,
+			&pc.Unarmed,
+			&pc.Hammer,
+			&pc.Polearm,
+			&pc.Spear,
+			&pc.Staff,
+			&pc.Sword,
+			&pc.Archery,
+			&pc.Crossbow,
+			&pc.Sling,
+			&pc.Thrown,
+			&pc.Armor,
+			&pc.Dualweapon,
+			&pc.Shield,
+			&pc.Bardic,
+			&pc.Conjuring,
+			&pc.Druidic,
+			&pc.Illusion,
+			&pc.Necromancy,
+			&pc.Sorcery,
+			&pc.Shamanic,
+			&pc.Spellcraft,
+			&pc.Summoning,
+			&pc.Focus,
+			&pc.Armorsmithing,
+			&pc.Tailoring,
+			&pc.Fletching,
+			&pc.Weaponsmithing,
+			&pc.Alchemy,
+			&pc.Lapidary,
+			&pc.Calligraphy,
+			&pc.Enchanting,
+			&pc.Herbalism,
+			&pc.Hunting,
+			&pc.Mining,
+			&pc.Bargaining,
+			&pc.Camping,
+			&pc.Firstaid,
+			&pc.Lore,
+			&pc.Picklocks,
+			&pc.Scouting,
+			&pc.Search,
+			&pc.Stealth,
+			&pc.Traps,
+			&pc.Aeolandis,
+			&pc.Hieroform,
+			&pc.Highgundis,
+			&pc.Oldpraxic,
+			&pc.Praxic,
+			&pc.Runic,
+			&pc.Head,
+			&pc.Chest,
+			&pc.Arms,
+			&pc.Hands,
+			&pc.Legs,
+			&pc.Feet,
+			&pc.Cloak,
+			&pc.Necklace,
+			&pc.Ringone,
+			&pc.Ringtwo,
+			&pc.Righthand,
+			&pc.Lefthand,
+			&pc.Zone,
+			&pc.X,
+			&pc.Y,
+			&pc.Z,
+			&pc.Direction,
+		)
+		shared.CheckErr(err)
+	}
+	return pc
 }
 
 func pullNpcs() []shared.Npc {

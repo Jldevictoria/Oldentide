@@ -26,7 +26,7 @@ var err error
 var sadd string
 var sport int
 var test int
-var sid int64
+var sid uint64
 var gui bool
 var serverConnection net.Conn
 
@@ -35,7 +35,7 @@ func init() {
 	flag.StringVar(&sadd, "server", "0.0.0.0", "Dedicated game server address.")
 	flag.IntVar(&sport, "port", 1337, "Port used for dedicated game server.")
 	flag.IntVar(&test, "test", 0, "Test number within the test_client that we want to call. If not given, it will default to a sample \"game\".")
-	flag.Int64Var(&sid, "session", rand.Int63(), "Session will allow you to force a SessionID for your packets.")
+	flag.Uint64Var(&sid, "session", rand.Uint64(), "Session will allow you to force a SessionID for your packets.")
 	flag.BoolVar(&gui, "gui", false, "Define whether you want to use the gui option!")
 }
 
@@ -83,6 +83,12 @@ func main() {
 	}
 }
 
+func marshallAndSendPacket(v interface{}) {
+	reqpac, err := msgpack.Marshal(v)
+	shared.CheckErr(err)
+	serverConnection.Write(reqpac)
+}
+
 func runCommand(command string) error {
 	command = strings.TrimSuffix(command, "\n")
 	commandTokens := strings.Fields(command)
@@ -103,7 +109,7 @@ func runCommand(command string) error {
 		fmt.Println("/p <any message> - Sends <any message> as a \"Party Chat\" command.")
 		fmt.Println("/g <any message> - Sends <any message> as a \"Guild Chat\" command.")
 		fmt.Println("/w <target_player> <any message> - Sends <any message> directly to <target_player> as a \"Whisper\" command.")
-		fmt.Println("/move <target_player> <x> <y> <z> <direction> - Moves the specified player character to <x>, <y>, <z>, <direction>.")
+		fmt.Println("/move <x> <y> <z> <direction> - Moves the specified player character to <x>, <y>, <z>, <direction>.")
 		fmt.Println("/connect <target_player> - Attempts to connect <target_player> to the server.")
 		break
 	case "/spam":
@@ -125,54 +131,38 @@ func runCommand(command string) error {
 		}
 		p := makePlayer(commandTokens[2])
 		pac := shared.CreatePlayerPacket{Opcode: shared.CREATEPLAYER, Pc: p}
-		reqpac, err := msgpack.Marshal(pac)
-		shared.CheckErr(err)
-		serverConnection.Write(reqpac)
+		marshallAndSendPacket(pac)
 		break
 	case "/requestcharacterlist":
 		if len(commandTokens) != 2 {
 			return errors.New("wrong arguments to /requestcharacterlist")
 		}
 		pac := shared.ReqClistPacket{Opcode: shared.REQCLIST, Account: commandTokens[1]}
-		reqpac, err := msgpack.Marshal(pac)
-		shared.CheckErr(err)
-		serverConnection.Write(reqpac)
+		marshallAndSendPacket(pac)
 		break
 	case "/s":
-		pac := shared.SayCmdPacket{Opcode: shared.SAYCMD, SessionID: sid, Text: command[2:len(command)]}
-		reqpac, err := msgpack.Marshal(pac)
-		shared.CheckErr(err)
-		serverConnection.Write(reqpac)
+		pac := shared.SayCmdPacket{Opcode: shared.SAYCMD, SessionID: sid, Text: command[2:]}
+		marshallAndSendPacket(pac)
 		break
 	case "/y":
-		pac := shared.YellCmdPacket{Opcode: shared.YELLCMD, SessionID: sid, Text: command[2:len(command)]}
-		reqpac, err := msgpack.Marshal(pac)
-		shared.CheckErr(err)
-		serverConnection.Write(reqpac)
+		pac := shared.YellCmdPacket{Opcode: shared.YELLCMD, SessionID: sid, Text: command[2:]}
+		marshallAndSendPacket(pac)
 		break
 	case "/ooc":
-		pac := shared.OocCmdPacket{Opcode: shared.OOCCMD, SessionID: sid, Text: command[2:len(command)]}
-		reqpac, err := msgpack.Marshal(pac)
-		shared.CheckErr(err)
-		serverConnection.Write(reqpac)
+		pac := shared.OocCmdPacket{Opcode: shared.OOCCMD, SessionID: sid, Text: command[2:]}
+		marshallAndSendPacket(pac)
 		break
 	case "/h":
-		pac := shared.HelpCmdPacket{Opcode: shared.HELPCMD, SessionID: sid, Text: command[2:len(command)]}
-		reqpac, err := msgpack.Marshal(pac)
-		shared.CheckErr(err)
-		serverConnection.Write(reqpac)
+		pac := shared.HelpCmdPacket{Opcode: shared.HELPCMD, SessionID: sid, Text: command[2:]}
+		marshallAndSendPacket(pac)
 		break
 	case "/p":
-		pac := shared.PchatCmdPacket{Opcode: shared.PCHATCMD, SessionID: sid, Text: command[2:len(command)]}
-		reqpac, err := msgpack.Marshal(pac)
-		shared.CheckErr(err)
-		serverConnection.Write(reqpac)
+		pac := shared.PchatCmdPacket{Opcode: shared.PCHATCMD, SessionID: sid, Text: command[2:]}
+		marshallAndSendPacket(pac)
 		break
 	case "/g":
-		pac := shared.GchatCmdPacket{Opcode: shared.GCHATCMD, SessionID: sid, Text: command[2:len(command)]}
-		reqpac, err := msgpack.Marshal(pac)
-		shared.CheckErr(err)
-		serverConnection.Write(reqpac)
+		pac := shared.GchatCmdPacket{Opcode: shared.GCHATCMD, SessionID: sid, Text: command[2:]}
+		marshallAndSendPacket(pac)
 		break
 	case "/w":
 		if len(commandTokens) < 3 {
@@ -182,40 +172,34 @@ func runCommand(command string) error {
 			Opcode:    shared.WHISPERCMD,
 			SessionID: sid,
 			Target:    commandTokens[1],
-			Text:      strings.Replace(command[2:len(command)], " "+commandTokens[1], "", -1),
+			Text:      strings.Replace(command[2:], " "+commandTokens[1], "", -1),
 		}
-		reqpac, err := msgpack.Marshal(pac)
-		shared.CheckErr(err)
-		serverConnection.Write(reqpac)
+		marshallAndSendPacket(pac)
 		break
 	case "/move":
-		if len(commandTokens) != 6 {
+		if len(commandTokens) != 5 {
 			return errors.New("wrong enough arguments to /move")
 		}
 		pac := shared.MovePlayerPacket{Opcode: shared.MOVEPLAYER, SessionID: sid}
-		x, err := strconv.ParseFloat(commandTokens[1], 64)
+		x, err := strconv.ParseFloat(commandTokens[1], 32)
 		shared.CheckErr(err)
-		y, err := strconv.ParseFloat(commandTokens[2], 64)
+		y, err := strconv.ParseFloat(commandTokens[2], 32)
 		shared.CheckErr(err)
-		z, err := strconv.ParseFloat(commandTokens[3], 64)
+		z, err := strconv.ParseFloat(commandTokens[3], 32)
 		shared.CheckErr(err)
 		direction, err := strconv.ParseFloat(commandTokens[4], 32)
 		pac.X = float32(x)
 		pac.Y = float32(y)
 		pac.Z = float32(z)
 		pac.Direction = float32(direction)
-		reqpac, err := msgpack.Marshal(pac)
-		shared.CheckErr(err)
-		serverConnection.Write(reqpac)
+		marshallAndSendPacket(pac)
 		break
 	case "/connect":
 		if len(commandTokens) != 2 {
 			return errors.New("not enough arguments to /connect")
 		}
-		pac := shared.ConnectPacket{Opcode: shared.CONNECT, SessionID: sid, Character: commandTokens[1]}
-		reqpac, err := msgpack.Marshal(pac)
-		shared.CheckErr(err)
-		serverConnection.Write(reqpac)
+		pac := shared.ConnectPacket{Opcode: shared.CONNECT, SessionID: sid, Firstname: commandTokens[1]}
+		marshallAndSendPacket(pac)
 		break
 	default:
 		return errors.New("target command \"" + commandTokens[0] + "\" is not a valid command.")

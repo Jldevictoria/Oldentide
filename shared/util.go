@@ -32,6 +32,17 @@ func IfErrPrintErr(err error) {
 	}
 }
 
+// CountUintStringMapInstances checks an entire map to count how many instances of a given value exist.
+func CountUintStringMapInstances(m map[uint64]string, v string) int {
+	count := 0
+	for _, element := range m {
+		if element == v {
+			count++
+		}
+	}
+	return count
+}
+
 // SaltAndHash takes in a password and salt and hashes them together into a db safe key.
 func SaltAndHash(password string, salt string) string {
 	hasher := sha256.New()
