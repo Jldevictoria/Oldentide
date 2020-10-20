@@ -96,7 +96,7 @@ func main() {
 		log.Fatal("Couldn't find a database file at: " + dbpath)
 	}
 	db, err = sql.Open("sqlite3", dbpath)
-	shared.CheckErr(err)
+	shared.IfErrPrintErr(err)
 	fmt.Println("* Database connected.")
 
 	// Initialize the game state (populates all of the npcs, and game objects, etc).
@@ -146,12 +146,12 @@ func main() {
 		Port: gport,
 	}
 	socket, err := net.ListenUDP("udp", &serverAddress)
-	shared.CheckErr(err)
+	shared.IfErrPrintErr(err)
 
 	// --------------------------------------------------------------------------------------------
 	// Start our collecter to pull in packets from the hardware socket.
 	// --------------------------------------------------------------------------------------------
-	rawPacketQueue := make(chan shared.RawPacket, 100000)
+	rawPacketQueue := make(chan shared.RawPacket)
 	quitChan := make(chan bool)
 	go Collect(socket, rawPacketQueue, quitChan)
 	fmt.Println("\n* Collector Launched.")
@@ -175,9 +175,9 @@ func main() {
 // Collect places all UDP packets that arrive on the hardware socket into a queue for handling.
 func Collect(connection *net.UDPConn, rawPacketQueue chan shared.RawPacket, quitChan chan bool) {
 	for {
-		buffer := make([]byte, 65507) // Max IPv4 UDP packet size.
+		buffer := make([]byte, 4096) // Max IPv4 UDP packet size.
 		n, remoteAddress, err := connection.ReadFromUDP(buffer)
-		shared.CheckErr(err)
+		shared.IfErrPrintErr(err)
 		rawPacketQueue <- shared.RawPacket{Size: n, Client: remoteAddress, Payload: buffer}
 		packetCount++
 		fmt.Println("PC:", packetCount)
@@ -201,25 +201,43 @@ func Handle(rawPacketQueue chan shared.RawPacket, quitChan chan bool, rid int) {
 				fmt.Println("Handling an EMPTY packet.")
 				continue
 			case shared.GENERIC:
-				// fmt.Println("Handling a GENERIC packet.")
+				fmt.Println("Handling a GENERIC packet.")
 				continue
 			case shared.ACK:
 				fmt.Println("Handling an ACK packet.")
 				var decpac shared.AckPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				continue
 			case shared.ERROR:
 				fmt.Println("Handling an ERROR packet.")
 				var decpac shared.ErrorPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				continue
 			case shared.REQCLIST:
 				fmt.Println("Handling a REQCLIST packet.")
 				var decpac shared.ReqClistPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
 				fmt.Println(decpac)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				var retpac shared.SendClistPacket
 				retpac.Opcode = shared.SENDCLIST
 				retpac.Characters = getCharacterList(decpac.Account)
@@ -230,6 +248,11 @@ func Handle(rawPacketQueue chan shared.RawPacket, quitChan chan bool, rid int) {
 				var decpac shared.CreatePlayerPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
 				fmt.Println(decpac)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				// Need to get the account name by session id.
 				accountName := "test"
 				playerName := decpac.Pc.Firstname
@@ -255,17 +278,15 @@ func Handle(rawPacketQueue chan shared.RawPacket, quitChan chan bool, rid int) {
 				fmt.Println("Handling a CONNECT packet.")
 				var decpac shared.ConnectPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				if p, ok := SessionsPlayers[decpac.SessionID]; ok {
 					fmt.Println("Player" + p + "tried to connect twice.  Forcing full disconnect.")
-					// // Send a force disconnect packet.
-					// var retpac shared.DisconnectPacket
-					// retpac.Opcode = shared.DISCONNECT
-					// retpac.SessionID = decpac.SessionID
-					// var retbuf, err = msgpack.Marshal(retpac)
-					// shared.CheckErr(err)
-					// _, err = net.UDPConn.Write
-					delete(SessionsPlayers, decpac.SessionID)
+					DisconnectSession(decpac.SessionID, true)
 				} else if shared.CountUintStringMapInstances(SessionsPlayers, decpac.Firstname) > 0 {
 					fmt.Println("Session" + strconv.FormatUint(decpac.SessionID, 10) + "tried to connect to an already existing player.  Hacking!")
 				} else {
@@ -284,10 +305,14 @@ func Handle(rawPacketQueue chan shared.RawPacket, quitChan chan bool, rid int) {
 				fmt.Println("Handling a DISCONNECT packet.")
 				var decpac shared.DisconnectPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				if _, ok := SessionsPlayers[decpac.SessionID]; ok {
-					delete(SessionsPlayers, decpac.SessionID)
-					// Send a force disconnect packet.
+					DisconnectSession(decpac.SessionID, true)
 				} else {
 					fmt.Println("Player with session", decpac.SessionID, "tried to disconnect, but was never connected...")
 				}
@@ -296,14 +321,17 @@ func Handle(rawPacketQueue chan shared.RawPacket, quitChan chan bool, rid int) {
 				fmt.Println("Handling a MOVEPLAYER packet.")
 				var decpac shared.MovePlayerPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				if player, ok := Pcs[SessionsPlayers[decpac.SessionID]]; ok {
-					fmt.Println(Pcs[SessionsPlayers[decpac.SessionID]])
 					player.X = decpac.X
 					player.Y = decpac.Y
 					player.Z = decpac.Z
 					player.Direction = decpac.Direction
-					fmt.Println(Pcs[SessionsPlayers[decpac.SessionID]])
 				} else {
 					fmt.Println("Player did not exist in MOVEPLAYER case for session", decpac.SessionID)
 				}
@@ -312,146 +340,272 @@ func Handle(rawPacketQueue chan shared.RawPacket, quitChan chan bool, rid int) {
 				fmt.Println("Handling a SPENDDP packet.")
 				var decpac shared.SpendDpPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				continue
 			case shared.TALKCMD:
 				fmt.Println("Handling a TALKCMD packet.")
 				var decpac shared.TalkCmdPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				continue
 			case shared.ATTACKCMD:
 				fmt.Println("Handling a ATTACKCMD packet.")
 				var decpac shared.AttackCmdPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				continue
 			case shared.TRADECMD:
 				fmt.Println("Handling a TRADECMD packet.")
 				var decpac shared.TradeCmdPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				continue
 			case shared.INVITECMD:
 				fmt.Println("Handling a INVITECMD packet.")
 				var decpac shared.InviteCmdPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				continue
 			case shared.GINVITECMD:
 				fmt.Println("Handling a GINVITECMD packet.")
 				var decpac shared.GuildInviteCmdPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				continue
 			case shared.GKICK:
 				fmt.Println("Handling a GKICK packet.")
 				var decpac shared.GuildKickCmdPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				continue
 			case shared.GPROMOTE:
 				fmt.Println("Handling a GPROMOTE packet.")
 				var decpac shared.GuildPromoteCmdPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
+				continue
+			case shared.GDEMOTE:
+				fmt.Println("Handling a GDEMOTE packet.")
+				var decpac shared.GuildPromoteCmdPacket
+				err = msgpack.Unmarshal(packet.Payload, &decpac)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				continue
 			case shared.SAYCMD:
 				fmt.Println("Handling a SAYCMD packet.")
 				var decpac shared.SayCmdPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				handleSayMessage(decpac)
 				continue
 			case shared.YELLCMD:
 				fmt.Println("Handling a YELLCMD packet.")
 				var decpac shared.YellCmdPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				handleYellMessage(decpac)
 				continue
 			case shared.OOCCMD:
 				fmt.Println("Handling a OOCCMD packet.")
 				var decpac shared.OocCmdPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				handleOocMessage(decpac)
 				continue
 			case shared.HELPCMD:
 				fmt.Println("Handling a HELPCMD packet.")
 				var decpac shared.HelpCmdPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				handleHelpMessage(decpac)
 				continue
 			case shared.PCHATCMD:
 				fmt.Println("Handling a PCHATCMD packet.")
 				var decpac shared.PchatCmdPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				handlePartyMessage(decpac)
 				continue
 			case shared.GCHATCMD:
 				fmt.Println("Handling a GCHATCMD packet.")
 				var decpac shared.GchatCmdPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				handleGuildMessage(decpac)
 				continue
 			case shared.WHISPERCMD:
 				fmt.Println("Handling a WHISPERCMD packet.")
 				var decpac shared.WhisperCmdPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				handleWhisperMessage(decpac)
 				continue
 			case shared.ACTIVATECMD:
 				fmt.Println("Handling a ACTIVATECMD packet.")
 				var decpac shared.ActivateCmdPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				continue
 			case shared.DIALOGCMD:
 				fmt.Println("Handling a DIALOGUECMD packet.")
 				var decpac shared.DialogueCmdPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				continue
 			case shared.BUYITEM:
 				fmt.Println("Handling a BUYITEM packet.")
 				var decpac shared.BuyItemPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				continue
 			case shared.TAKELOOT:
 				fmt.Println("Handling a TAKELOOT packet.")
 				var decpac shared.TakeLootPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				continue
 			case shared.OFFERITEM:
 				fmt.Println("Handling a OFFERITEM packet.")
 				var decpac shared.OfferItemPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				continue
 			case shared.PULLITEM:
 				fmt.Println("Handling a PULLITEM packet.")
 				var decpac shared.PullItemPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				continue
 			case shared.ACCTRADE:
 				fmt.Println("Handling a ACCTRADE packet.")
 				var decpac shared.AcceptTradePacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				continue
 			case shared.UNACCTRADE:
 				fmt.Println("Handling a UNACCTRADE packet.")
 				var decpac shared.UnacceptTradePacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
-				shared.CheckErr(err)
+				shared.IfErrPrintErr(err)
+				err = VerifySession(decpac.SessionID, packet.Client)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 				continue
 			default:
 				continue

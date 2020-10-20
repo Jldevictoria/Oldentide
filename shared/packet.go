@@ -116,8 +116,9 @@ type ErrorPacket struct {
 
 // ReqClistPacket is the packet with Opcode (REQCLIST)
 type ReqClistPacket struct {
-	Opcode  Opcode
-	Account string
+	Opcode    Opcode
+	SessionID uint64
+	Account   string
 }
 
 // SendClistPacket  is the packet with Opcode (SENDCLIST)
@@ -232,42 +233,42 @@ type GuildDemoteCmdPacket struct {
 type SayCmdPacket struct {
 	Opcode    Opcode
 	SessionID uint64
-	Text      string
+	Message   string
 }
 
 // YellCmdPacket is the packet with Opcode (YELLCMD)
 type YellCmdPacket struct {
 	Opcode    Opcode
 	SessionID uint64
-	Text      string
+	Message   string
 }
 
 // OocCmdPacket is the packet with Opcode (OOCCMD)
 type OocCmdPacket struct {
 	Opcode    Opcode
 	SessionID uint64
-	Text      string
+	Message   string
 }
 
 // HelpCmdPacket is the packet with Opcode (HELPCMD)
 type HelpCmdPacket struct {
 	Opcode    Opcode
 	SessionID uint64
-	Text      string
+	Message   string
 }
 
 // PchatCmdPacket is the packet with Opcode (PCHATCMD)
 type PchatCmdPacket struct {
 	Opcode    Opcode
 	SessionID uint64
-	Text      string
+	Message   string
 }
 
 // GchatCmdPacket is the packet with Opcode (GCHATCMD)
 type GchatCmdPacket struct {
 	Opcode    Opcode
 	SessionID uint64
-	Text      string
+	Message   string
 }
 
 // WhisperCmdPacket is the packet with Opcode (WHISPERCMD)
@@ -275,7 +276,7 @@ type WhisperCmdPacket struct {
 	Opcode    Opcode
 	SessionID uint64
 	Target    string
-	Text      string
+	Message   string
 }
 
 // RelaySayPacket is the packet with Opcode (RELAYSAY)
@@ -318,6 +319,7 @@ type RelayGuildChatPacket struct {
 type RelayWhisperPacket struct {
 	Opcode    Opcode
 	SessionID uint64
+	Message   string
 }
 
 // ActivateCmdPacket is the packet with Opcode (ACTIVATECMD)

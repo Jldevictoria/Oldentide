@@ -23,30 +23,38 @@ import (
 )
 
 func handleSayMessage(packet shared.SayCmdPacket) {
-	fmt.Println("[/s](", packet.SessionID, "): ", packet.Text)
+	fmt.Println("[/s](", packet.SessionID, "): ", packet.Message)
 }
 
 func handleYellMessage(packet shared.YellCmdPacket) {
-	fmt.Println("[/y](", packet.SessionID, "): ", packet.Text)
+	fmt.Println("[/y](", packet.SessionID, "): ", packet.Message)
 }
 
 func handleOocMessage(packet shared.OocCmdPacket) {
-	fmt.Println("[/ooc](", packet.SessionID, "): ", packet.Text)
+	fmt.Println("[/ooc](", packet.SessionID, "): ", packet.Message)
+	// thisPlayer := Pcs[SessionsPlayers[packet.SessionID]]
+	// currentZone :=
 }
 
 func handleHelpMessage(packet shared.HelpCmdPacket) {
-	fmt.Println("[/h](", packet.SessionID, "): ", packet.Text)
+	fmt.Println("[/h](", packet.SessionID, "): ", packet.Message)
 }
 
 func handlePartyMessage(packet shared.PchatCmdPacket) {
-	fmt.Println("[/p](", packet.SessionID, "): ", packet.Text)
+	fmt.Println("[/p](", packet.SessionID, "): ", packet.Message)
 }
 
 func handleGuildMessage(packet shared.GchatCmdPacket) {
-	fmt.Println("[/g](", packet.SessionID, "): ", packet.Text)
+	fmt.Println("[/g](", packet.SessionID, "): ", packet.Message)
 }
 
 func handleWhisperMessage(packet shared.WhisperCmdPacket) {
-	fmt.Println("[/w target](", packet.SessionID, " -> ", packet.Target, "): ", packet.Text)
+	fmt.Println("[/w target](", packet.SessionID, " -> ", packet.Target, "): ", packet.Message)
+	// if p, ok := Pcs[packet.Target]; ok {
+	// 	if targetSessionID, ok := PlayerSessions[p.Firstname]; ok {
+	// 		pac := shared.RelayWhisperPacket{Opcode: shared.RELAYWHISPER, SessionID: targetSessionID, Message: packet.Message}
+	// 	}
+	// } else {
 
+	// }
 }

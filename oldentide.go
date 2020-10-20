@@ -25,15 +25,18 @@ import (
 var err error
 var sadd string
 var sport int
+var cport int
 var test int
 var sid uint64
 var gui bool
 var serverConnection net.Conn
+var packetCount int
 
 func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	flag.StringVar(&sadd, "server", "0.0.0.0", "Dedicated game server address.")
-	flag.IntVar(&sport, "port", 1337, "Port used for dedicated game server.")
+	flag.IntVar(&sport, "sport", 1337, "Port used for dedicated game server.")
+	flag.IntVar(&cport, "cport", 1338, "Port used for client listener.")
 	flag.IntVar(&test, "test", 0, "Test number within the test_client that we want to call. If not given, it will default to a sample \"game\".")
 	flag.Uint64Var(&sid, "session", rand.Uint64(), "Session will allow you to force a SessionID for your packets.")
 	flag.BoolVar(&gui, "gui", false, "Define whether you want to use the gui option!")
@@ -50,17 +53,16 @@ func main() {
 	fmt.Println("\n-------------------------------------------------------")
 	fmt.Println("Starting Oldentide command line client!")
 	fmt.Println("-------------------------------------------------------")
-	// // Listener.
-	// clientAddress := net.UDPAddr{
-	// 	IP:   net.IP{0, 0, 0, 0},
-	// 	Port: sport,
-	// }
-	// listenSocket, err := net.ListenUDP("udp", &clientAddress)
-	// defer listenSocket.Close()
-	// shared.CheckErr(err)
+	// Listener.
+	clientAddress := net.UDPAddr{
+		IP:   net.IP{0, 0, 0, 0},
+		Port: cport,
+	}
+	listenSocket, err := net.ListenUDP("udp", &clientAddress)
+	shared.CheckErr(err)
+	go collect(listenSocket)
 
-	// Set up server connection.
-	// Create udp socket description struct.
+	// Set up server connection through udp socket descriptor struct.
 	serverConnection, err = net.Dial("udp", sadd+":"+strconv.Itoa(sport))
 	shared.CheckErr(err)
 	defer serverConnection.Close()
@@ -81,12 +83,6 @@ func main() {
 			}
 		}
 	}
-}
-
-func marshallAndSendPacket(v interface{}) {
-	reqpac, err := msgpack.Marshal(v)
-	shared.CheckErr(err)
-	serverConnection.Write(reqpac)
 }
 
 func runCommand(command string) error {
@@ -131,38 +127,38 @@ func runCommand(command string) error {
 		}
 		p := makePlayer(commandTokens[2])
 		pac := shared.CreatePlayerPacket{Opcode: shared.CREATEPLAYER, Pc: p}
-		marshallAndSendPacket(pac)
+		shared.MarshallAndSendPacket(pac, serverConnection)
 		break
 	case "/requestcharacterlist":
 		if len(commandTokens) != 2 {
 			return errors.New("wrong arguments to /requestcharacterlist")
 		}
 		pac := shared.ReqClistPacket{Opcode: shared.REQCLIST, Account: commandTokens[1]}
-		marshallAndSendPacket(pac)
+		shared.MarshallAndSendPacket(pac, serverConnection)
 		break
 	case "/s":
-		pac := shared.SayCmdPacket{Opcode: shared.SAYCMD, SessionID: sid, Text: command[2:]}
-		marshallAndSendPacket(pac)
+		pac := shared.SayCmdPacket{Opcode: shared.SAYCMD, SessionID: sid, Message: command[2:]}
+		shared.MarshallAndSendPacket(pac, serverConnection)
 		break
 	case "/y":
-		pac := shared.YellCmdPacket{Opcode: shared.YELLCMD, SessionID: sid, Text: command[2:]}
-		marshallAndSendPacket(pac)
+		pac := shared.YellCmdPacket{Opcode: shared.YELLCMD, SessionID: sid, Message: command[2:]}
+		shared.MarshallAndSendPacket(pac, serverConnection)
 		break
 	case "/ooc":
-		pac := shared.OocCmdPacket{Opcode: shared.OOCCMD, SessionID: sid, Text: command[2:]}
-		marshallAndSendPacket(pac)
+		pac := shared.OocCmdPacket{Opcode: shared.OOCCMD, SessionID: sid, Message: command[2:]}
+		shared.MarshallAndSendPacket(pac, serverConnection)
 		break
 	case "/h":
-		pac := shared.HelpCmdPacket{Opcode: shared.HELPCMD, SessionID: sid, Text: command[2:]}
-		marshallAndSendPacket(pac)
+		pac := shared.HelpCmdPacket{Opcode: shared.HELPCMD, SessionID: sid, Message: command[2:]}
+		shared.MarshallAndSendPacket(pac, serverConnection)
 		break
 	case "/p":
-		pac := shared.PchatCmdPacket{Opcode: shared.PCHATCMD, SessionID: sid, Text: command[2:]}
-		marshallAndSendPacket(pac)
+		pac := shared.PchatCmdPacket{Opcode: shared.PCHATCMD, SessionID: sid, Message: command[2:]}
+		shared.MarshallAndSendPacket(pac, serverConnection)
 		break
 	case "/g":
-		pac := shared.GchatCmdPacket{Opcode: shared.GCHATCMD, SessionID: sid, Text: command[2:]}
-		marshallAndSendPacket(pac)
+		pac := shared.GchatCmdPacket{Opcode: shared.GCHATCMD, SessionID: sid, Message: command[2:]}
+		shared.MarshallAndSendPacket(pac, serverConnection)
 		break
 	case "/w":
 		if len(commandTokens) < 3 {
@@ -172,9 +168,9 @@ func runCommand(command string) error {
 			Opcode:    shared.WHISPERCMD,
 			SessionID: sid,
 			Target:    commandTokens[1],
-			Text:      strings.Replace(command[2:], " "+commandTokens[1], "", -1),
+			Message:   strings.Replace(command[2:], " "+commandTokens[1], "", -1),
 		}
-		marshallAndSendPacket(pac)
+		shared.MarshallAndSendPacket(pac, serverConnection)
 		break
 	case "/move":
 		if len(commandTokens) != 5 {
@@ -192,19 +188,45 @@ func runCommand(command string) error {
 		pac.Y = float32(y)
 		pac.Z = float32(z)
 		pac.Direction = float32(direction)
-		marshallAndSendPacket(pac)
+		shared.MarshallAndSendPacket(pac, serverConnection)
 		break
+	case "/movespam":
+		if len(commandTokens) != 2 {
+			return errors.New("wrong enough arguments to /movespam")
+		}
+		numPackets, err := strconv.Atoi(commandTokens[1])
+		shared.CheckErr(err)
+		for i := 0; i < numPackets; i++ {
+			pac := shared.MovePlayerPacket{Opcode: shared.MOVEPLAYER, SessionID: sid, X: rand.Float32(), Y: rand.Float32(), Z: rand.Float32(), Direction: rand.Float32()}
+			shared.MarshallAndSendPacket(pac, serverConnection)
+		}
 	case "/connect":
 		if len(commandTokens) != 2 {
 			return errors.New("not enough arguments to /connect")
 		}
 		pac := shared.ConnectPacket{Opcode: shared.CONNECT, SessionID: sid, Firstname: commandTokens[1]}
-		marshallAndSendPacket(pac)
+		shared.MarshallAndSendPacket(pac, serverConnection)
+		break
+	case "/disconnect":
+		pac := shared.DisconnectPacket{Opcode: shared.DISCONNECT, SessionID: sid}
+		shared.MarshallAndSendPacket(pac, serverConnection)
 		break
 	default:
 		return errors.New("target command \"" + commandTokens[0] + "\" is not a valid command.")
 	}
 	return nil
+}
+
+// collect will simply listen for and print any incoming packets.
+func collect(connection *net.UDPConn) {
+	for {
+		buffer := make([]byte, 4096) // Max IPv4 UDP packet size.
+		n, remoteAddress, err := connection.ReadFromUDP(buffer)
+		shared.IfErrPrintErr(err)
+		fmt.Println(shared.RawPacket{Size: n, Client: remoteAddress, Payload: buffer})
+		packetCount++
+		fmt.Println("PC:", packetCount)
+	}
 }
 
 // makePlayer creates a sample player for testing the server.
