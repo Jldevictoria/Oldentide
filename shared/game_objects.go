@@ -25,8 +25,8 @@ type Pc struct {
 	Maxbp          int32
 	Mp             int32
 	Maxmp          int32
-	Ep             int32
-	Maxep          int32
+	Sp             int32
+	Maxsp          int32
 	Strength       int32
 	Constitution   int32
 	Intelligence   int32
@@ -182,8 +182,8 @@ type Npc struct {
 	Maxbp        int32
 	Mp           int32
 	Maxmp        int32
-	Ep           int32
-	Maxep        int32
+	Sp           int32
+	Maxsp        int32
 	Strength     int32
 	Constitution int32
 	Intelligence int32
@@ -422,8 +422,8 @@ func MakePlayer(fname string, lname string, gender string, race string, skin str
 		Maxbp:          250,
 		Mp:             300,
 		Maxmp:          300,
-		Ep:             150,
-		Maxep:          150,
+		Sp:             150,
+		Maxsp:          150,
 		Strength:       65,
 		Constitution:   45,
 		Intelligence:   50,
@@ -521,8 +521,8 @@ func MakePlayerByName(name string) Pc {
 		Maxbp:          250,
 		Mp:             300,
 		Maxmp:          300,
-		Ep:             150,
-		Maxep:          150,
+		Sp:             150,
+		Maxsp:          150,
 		Strength:       65,
 		Constitution:   45,
 		Intelligence:   50,

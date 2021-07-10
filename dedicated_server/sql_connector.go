@@ -198,8 +198,8 @@ func pcsRowsToStruct(rows *sql.Rows) []shared.Pc {
 			&pc.Maxbp,
 			&pc.Mp,
 			&pc.Maxmp,
-			&pc.Ep,
-			&pc.Maxep,
+			&pc.Sp,
+			&pc.Maxsp,
 			&pc.Strength,
 			&pc.Constitution,
 			&pc.Intelligence,
@@ -302,8 +302,8 @@ func pcRowsToStruct(rows *sql.Rows) shared.Pc {
 			&pc.Maxbp,
 			&pc.Mp,
 			&pc.Maxmp,
-			&pc.Ep,
-			&pc.Maxep,
+			&pc.Sp,
+			&pc.Maxsp,
 			&pc.Strength,
 			&pc.Constitution,
 			&pc.Intelligence,
@@ -406,8 +406,8 @@ func pullNpcs() []shared.Npc {
 			&npc.Maxbp,
 			&npc.Mp,
 			&npc.Maxmp,
-			&npc.Ep,
-			&npc.Maxep,
+			&npc.Sp,
+			&npc.Maxsp,
 			&npc.Strength,
 			&npc.Constitution,
 			&npc.Intelligence,
@@ -718,7 +718,7 @@ func getAccountIDFromAccountName(accountName string) int32 {
 
 func addNewPlayer(player shared.Pc) {
 	// Need to add this...
-	ins, err := db.Prepare("INSERT INTO players(account_id, firstname, lastname, guild, race, gender, face, skin, profession, alive, level, dp, hp, maxhp, bp, maxbp, mp, maxmp, ep, maxep, strength, constitution, intelligence, dexterity, axe, dagger, unarmed, hammer, polearm, spear, staff, sword, archery, crossbow, sling, thrown, armor, dualweapon, shield, bardic, conjuring, druidic, illusion, necromancy, sorcery, shamanic, spellcraft, summoning, focus, armorsmithing, tailoring, fletching, weaponsmithing, alchemy, lapidary, calligraphy, enchanting, herbalism, hunting, mining, bargaining, camping, firstaid, lore, picklocks, scouting, search, stealth, traps, aeolandis, hieroform, highgundis, oldpraxic, praxic, runic, head, chest, arms, hands, legs, feet, cloak, necklace, ringone, ringtwo, righthand, lefthand, zone, x, y, z, direction) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+	ins, err := db.Prepare("INSERT INTO players(account_id, firstname, lastname, guild, race, gender, face, skin, profession, alive, level, dp, hp, maxhp, bp, maxbp, mp, maxmp, sp, maxsp, strength, constitution, intelligence, dexterity, axe, dagger, unarmed, hammer, polearm, spear, staff, sword, archery, crossbow, sling, thrown, armor, dualweapon, shield, bardic, conjuring, druidic, illusion, necromancy, sorcery, shamanic, spellcraft, summoning, focus, armorsmithing, tailoring, fletching, weaponsmithing, alchemy, lapidary, calligraphy, enchanting, herbalism, hunting, mining, bargaining, camping, firstaid, lore, picklocks, scouting, search, stealth, traps, aeolandis, hieroform, highgundis, oldpraxic, praxic, runic, head, chest, arms, hands, legs, feet, cloak, necklace, ringone, ringtwo, righthand, lefthand, zone, x, y, z, direction) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	shared.CheckErr(err)
 	// Try to populate and execute an SQL statment.
 	_, err = ins.Exec(
@@ -740,8 +740,8 @@ func addNewPlayer(player shared.Pc) {
 		player.Maxbp,
 		player.Mp,
 		player.Maxmp,
-		player.Ep,
-		player.Maxep,
+		player.Sp,
+		player.Maxsp,
 		player.Strength,
 		player.Constitution,
 		player.Intelligence,
