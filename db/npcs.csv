@@ -1,4 +1,4 @@
-firstname,lastname,guild,race,gender,face,skin,profession,alive,level,hp,maxhp,bp,maxbp,mp,maxmp,ep,maxep,strength,constitution,intelligence,dexterity,head,chest,arms,hands,legs,feet,cloak,righthand,lefthand,zone,x,y,z,direction
+firstname,lastname,guild,race,gender,face,skin,profession,alive,level,hp,maxhp,bp,maxbp,mp,maxmp,sp,maxsp,strength,constitution,intelligence,dexterity,head,chest,arms,hands,legs,feet,cloak,righthand,lefthand,zone,x,y,z,direction
 Goblin,Runt,,goblin,0,0,0,,1,1,30,30,20,20,30,30,20,20,20,25,25,25,0,0,0,0,0,0,0,0,0,Iskirrian_Plains,0,0,0,0
 Goblin,Runt,,goblin,0,0,0,,1,2,35,35,23,23,35,35,23,23,20,25,25,25,0,0,0,0,0,0,0,0,0,Iskirrian_Plains,0,0,0,0
 Goblin,Runt,,goblin,0,0,0,,1,1,30,30,20,20,30,30,20,20,20,25,25,25,0,0,0,0,0,0,0,0,0,Iskirrian_Plains,0,0,0,0
