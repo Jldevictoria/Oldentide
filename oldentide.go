@@ -50,6 +50,7 @@ func main() {
 	fmt.Println("-------------------------------------------------------")
 	fmt.Println("Server Address:", sadd)
 	fmt.Println("Server Port:", sport)
+	fmt.Println("Client Listener Port: ", cport)
 	fmt.Println("\n-------------------------------------------------------")
 	fmt.Println("Starting Oldentide command line client!")
 	fmt.Println("-------------------------------------------------------")
@@ -107,6 +108,7 @@ func runCommand(command string) error {
 		fmt.Println("/w <target_player> <any message> - Sends <any message> directly to <target_player> as a \"Whisper\" command.")
 		fmt.Println("/move <x> <y> <z> <direction> - Moves the specified player character to <x>, <y>, <z>, <direction>.")
 		fmt.Println("/connect <target_player> - Attempts to connect <target_player> to the server.")
+		fmt.Println("/disconnect - Attempts to disconnect the currently logged in player from the server.")
 		break
 	case "/spam":
 		if len(commandTokens) != 2 {
