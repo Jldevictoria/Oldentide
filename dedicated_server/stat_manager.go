@@ -5,70 +5,30 @@
 
 package main
 
-import "Oldentide/shared"
+import (
+	"Oldentide/shared"
+	"log"
+)
 
-// DPPerLevel is a list of how much experience is granted at each level (starting from level 1).
-// I figured out the equation for this today, need to incorporate it at some point.
-// DevelopmentPoints(level) = DevelopmentPoints(level - 1) + 75 * (level - 1) + (2 * (level - 1) * (level - 2))
-// Where DevelopmentPoints(1) = 1500 and points are only awarded from level[1:51]
-var DPPerLevel []int64 = []int64{
-	1500,
-	1575,
-	1729,
-	1965,
-	2289,
-	2704,
-	3214,
-	3823,
-	4534,
-	5353,
-	6283,
-	7328,
-	8492,
-	9778,
-	11192,
-	12737,
-	14417,
-	16236,
-	18197,
-	20306,
-	22566,
-	24981,
-	27555,
-	30291,
-	33195,
-	36270,
-	39520,
-	42949,
-	46560,
-	50359,
-	54349,
-	58534,
-	62918,
-	67504,
-	72298,
-	77303,
-	82523,
-	87962,
-	93623,
-	99512,
-	105632,
-	111987,
-	118581,
-	125417,
-	132501,
-	139836,
-	147426,
-	155275,
-	163386,
-	171765,
-	178685,
+// calculateAwardedDP will return the amount of DP to add to a player based on the level they have reached.
+// I decided to make this recursive since that is what matched the original model.
+func calculateAwardedDP(level int32) int32 {
+	if level <= 1 {
+		return 1500
+	} else if level > 51 {
+		return 0
+	}
+	return (calculateAwardedDP(level-1) + (75 * (level - 1)) + (2 * (level - 1) * (level - 2)))
 }
 
+// checkDP will see if the SkillUpdate that was requested by the player is legal according to the game rules.
+// If this check passes, we will update the player in the game model and database.
 func checkDP(su shared.SkillUpdate) bool {
-	if su.Predp > 100 {
-		return true
+	_, err := getPlayerByFirstname(su.Playername)
+	if err != nil {
+		log.Println("Someone attempted to update the skills of a player who was not currently playing.")
 	}
+
 	return false
 }
 

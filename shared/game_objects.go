@@ -104,8 +104,8 @@ type Pc struct {
 // SkillUpdate is a struct that allows you to specify all of the skills that the player is trying to spend development points on.
 type SkillUpdate struct {
 	Playername     string
-	Predp          int32
-	Spenddp        int32
+	PreDP          int32
+	SpendDP        int32
 	Strength       int32
 	Constitution   int32
 	Intelligence   int32
