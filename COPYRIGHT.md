@@ -8,4 +8,4 @@ The deposit requirements will vary, depending on whether the work has been publi
 
 Identifying material deposited to represent the game or its three-dimensional parts usually consists of photographs, photostats, slides, drawings, or other two-dimensional representations of the work. The identifying material should include as many pieces as necessary to show the entire copyrightable content of the work, including the copyright notice if it appears on the work. All pieces of identifying material other  han transparencies must be no less than 3"×3" in size, and not more than 9"×12", but preferably 8"×10". At least one piece of identifying material must, on its front, back, or mount, indicate the title of the work and an exact measurement of one or more dimensions of the work.
 
-US Copyright Office - FL-108
+[US Copyright Office - FL-108 - Copyright Registration of Games](https://www.copyright.gov/fls/fl108.pdf)
