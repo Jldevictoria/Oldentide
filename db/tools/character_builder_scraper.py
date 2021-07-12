@@ -18,10 +18,10 @@ args = parser.parse_args()
 race_modifiers_file = 'race_templates.csv'
 profession_modifiers_file = 'profession_templates.csv'
 
-# Initialize modifiers data structures.
+# Initialize modifiers data structures - ORDER SENSITIVE.
 skills = (
-	"Hppl",
-	"Mppl",
+	"HPPL",
+	"MPPL",
 	"Strength",
 	"Constitution",
 	"Intelligence",
@@ -95,6 +95,7 @@ skills = (
 	"Description"
 )
 
+# ORDER SENSITIVE TO skills ABOVE.
 headers = (
 	"hppl",
 	"mppl",
@@ -103,56 +104,56 @@ headers = (
 	"intelligence_mod",
 	"dexterity_mod",
 	"axe_mod",
-    "dagger_mod",
-    "hammer_mod",
-    "polearm_mod",
-    "spear_mod",
-    "staff_mod",
-    "sword_mod",
-    "unarmed_mod",
-    "archery_mod",
-    "crossbow_mod",
-    "sling_mod",
-    "thrown_mod",
-    "armor_mod",
-    "dualweapon_mod",
-    "shield_mod",
-    "bardic_mod",
-    "conjuring_mod",
-    "druidic_mod",
-    "illusion_mod",
-    "necromancy_mod",
-    "shamanic_mod",
-    "sorcery_mod",
-    "summoning_mod",
-    "spellcraft_mod",
-    "focus_mod",
-    "alchemy_mod",
-    "armorsmithing_mod",
-    "calligraphy_mod",
-    "enchanting_mod",
-    "fletching_mod",
-    "lapidary_mod",
-    "tailoring_mod",
-    "weaponsmithing_mod",
-    "herbalism_mod",
-    "hunting_mod",
-    "mining_mod",
-    "bargaining_mod",
-    "camping_mod",
-    "firstaid_mod",
-    "lore_mod",
-    "picklocks_mod",
-    "scouting_mod",
-    "search_mod",
-    "stealth_mod",
-    "traps_mod",
-    "aeolandis_mod",
-    "hieroform_mod",
-    "highgundis_mod",
-    "oldpraxic_mod",
-    "praxic_mod",
-    "runic_mod",
+	"dagger_mod",
+	"hammer_mod",
+	"polearm_mod",
+	"spear_mod",
+	"staff_mod",
+	"sword_mod",
+	"unarmed_mod",
+	"archery_mod",
+	"crossbow_mod",
+	"sling_mod",
+	"thrown_mod",
+	"armor_mod",
+	"dualweapon_mod",
+	"shield_mod",
+	"bardic_mod",
+	"conjuring_mod",
+	"druidic_mod",
+	"illusion_mod",
+	"necromancy_mod",
+	"shamanic_mod",
+	"sorcery_mod",
+	"summoning_mod",
+	"spellcraft_mod",
+	"focus_mod",
+	"alchemy_mod",
+	"armorsmithing_mod",
+	"calligraphy_mod",
+	"enchanting_mod",
+	"fletching_mod",
+	"lapidary_mod",
+	"tailoring_mod",
+	"weaponsmithing_mod",
+	"herbalism_mod",
+	"hunting_mod",
+	"mining_mod",
+	"bargaining_mod",
+	"camping_mod",
+	"firstaid_mod",
+	"lore_mod",
+	"picklocks_mod",
+	"scouting_mod",
+	"search_mod",
+	"stealth_mod",
+	"traps_mod",
+	"leshic_mod",
+	"elvish_mod",
+	"orcish_mod",
+	"common_mod",
+	"dwarvish_mod",
+	"gnomish_mod",
 	"skill_1_multi",
 	"skill_1_names",
 	"skill_1_value",
@@ -234,8 +235,8 @@ for filename in os.listdir(professions_path):
 	for line in profession_data:
 		if line == profession_data[0]:
 			hppl, mppl = line.split("  ")
-			profession_dict['Hppl'] = hppl.rstrip("\n")
-			profession_dict['Mppl'] = mppl.rstrip("\n")
+			profession_dict['HPPL'] = hppl.rstrip("\n")
+			profession_dict['MPPL'] = mppl.rstrip("\n")
 		else:
 			skill, mod = line.rstrip("\n").rsplit(None,1)
 			if skill in skills:
@@ -318,7 +319,7 @@ race_mod_file.write("\n")
 for race in sorted(races):
 	race_mod_file.write(race)
 	for skill in skills:
-		if not "Skill_" in skill and not "Hppl" in skill and not "Mppl" in skill:
+		if not "Skill_" in skill and not "HPPL" in skill and not "MPPL" in skill:
 			if skill in races[race]:
 				race_mod_file.write("," + str(races[race][skill]))
 			else:

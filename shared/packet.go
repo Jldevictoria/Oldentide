@@ -175,8 +175,8 @@ type MovePlayerPacket struct {
 	Direction float32
 }
 
-// SpendDpPacket is the packet with Opcode (SPENDDP)
-type SpendDpPacket struct {
+// SpendDPPacket is the packet with Opcode (SPENDDP)
+type SpendDPPacket struct {
 	Opcode    Opcode
 	SessionID uint64
 }

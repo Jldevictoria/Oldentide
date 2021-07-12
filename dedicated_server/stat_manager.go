@@ -65,7 +65,7 @@ var DPPerLevel []int64 = []int64{
 	178685,
 }
 
-func checkDp(su shared.SkillUpdate) bool {
+func checkDP(su shared.SkillUpdate) bool {
 	if su.Predp > 100 {
 		return true
 	}

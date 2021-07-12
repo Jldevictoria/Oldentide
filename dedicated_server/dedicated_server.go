@@ -338,7 +338,7 @@ func Handle(rawPacketQueue chan shared.RawPacket, quitChan chan bool, rid int) {
 				continue
 			case shared.SPENDDP:
 				fmt.Println("Handling a SPENDDP packet.")
-				var decpac shared.SpendDpPacket
+				var decpac shared.SpendDPPacket
 				err = msgpack.Unmarshal(packet.Payload, &decpac)
 				shared.IfErrPrintErr(err)
 				err = VerifySession(decpac.SessionID, packet.Client)

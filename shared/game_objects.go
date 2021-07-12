@@ -17,16 +17,16 @@ type Pc struct {
 	Skin           string
 	Profession     string
 	Alive          bool
-	Plevel         int32
-	Dp             int32
-	Hp             int32
-	Maxhp          int32
-	Bp             int32
-	Maxbp          int32
-	Mp             int32
-	Maxmp          int32
-	Sp             int32
-	Maxsp          int32
+	PLevel         int32
+	DP             int32
+	HP             int32
+	MaxHP          int32
+	BP             int32
+	MaxBP          int32
+	MP             int32
+	MaxMP          int32
+	SP             int32
+	MaxSP          int32
 	Strength       int32
 	Constitution   int32
 	Intelligence   int32
@@ -76,12 +76,12 @@ type Pc struct {
 	Search         int32
 	Stealth        int32
 	Traps          int32
-	Aeolandis      int32
-	Hieroform      int32
-	Highgundis     int32
-	Oldpraxic      int32
-	Praxic         int32
-	Runic          int32
+	Leshic         int32
+	Elvish         int32
+	Orcish         int32
+	Common         int32
+	Dwarvish       int32
+	Gnomish        int32
 	Head           string
 	Chest          string
 	Arms           string
@@ -155,12 +155,12 @@ type SkillUpdate struct {
 	Search         int32
 	Stealth        int32
 	Traps          int32
-	Aeolandis      int32
-	Hieroform      int32
-	Highgundis     int32
-	Oldpraxic      int32
-	Praxic         int32
-	Runic          int32
+	Leshic         int32
+	Elvish         int32
+	Orcish         int32
+	Common         int32
+	Dwarvish       int32
+	Gnomish        int32
 }
 
 // Npc is a struct that contains all the information about an NPC that you would need in the game.
@@ -176,14 +176,14 @@ type Npc struct {
 	Profession   string
 	Alive        bool
 	Nlevel       int32
-	Hp           int32
-	Maxhp        int32
-	Bp           int32
-	Maxbp        int32
-	Mp           int32
-	Maxmp        int32
-	Sp           int32
-	Maxsp        int32
+	HP           int32
+	MaxHP        int32
+	BP           int32
+	MaxBP        int32
+	MP           int32
+	MaxMP        int32
+	SP           int32
+	MaxSP        int32
 	Strength     int32
 	Constitution int32
 	Intelligence int32
@@ -312,12 +312,12 @@ type RaceTemplate struct {
 	SearchMod         float32
 	StealthMod        float32
 	TrapsMod          float32
-	AeolandisMod      float32
-	HieroformMod      float32
-	HighgundisMod     float32
-	OldpraxicMod      float32
-	PraxicMod         float32
-	RunicMod          float32
+	LeshicMod         float32
+	ElvishMod         float32
+	OrcishMod         float32
+	CommonMod         float32
+	DwarvishMod       float32
+	GnomishMod        float32
 	Description       string
 }
 
@@ -325,8 +325,8 @@ type RaceTemplate struct {
 type ProfessionTemplate struct {
 	ID                int
 	Profession        string
-	Hppl              int
-	Mppl              int
+	HPPL              int
+	MPPL              int
 	StrengthMod       float32
 	ConstitutionMod   float32
 	IntelligenceMod   float32
@@ -376,12 +376,12 @@ type ProfessionTemplate struct {
 	SearchMod         float32
 	StealthMod        float32
 	TrapsMod          float32
-	AeolandisMod      float32
-	HieroformMod      float32
-	HighgundisMod     float32
-	OldpraxicMod      float32
-	PraxicMod         float32
-	RunicMod          float32
+	LeshicMod         float32
+	ElvishMod         float32
+	OrcishMod         float32
+	CommonMod         float32
+	DwarvishMod       float32
+	GnomishMod        float32
 	SkillMulti1       bool
 	SkillNames1       string
 	SkillValue1       float32
@@ -414,16 +414,16 @@ func MakePlayer(fname string, lname string, gender string, race string, skin str
 		Skin:           skin,
 		Profession:     "Engineer",
 		Alive:          true,
-		Plevel:         51,
-		Dp:             12000,
-		Hp:             450,
-		Maxhp:          450,
-		Bp:             250,
-		Maxbp:          250,
-		Mp:             300,
-		Maxmp:          300,
-		Sp:             150,
-		Maxsp:          150,
+		PLevel:         51,
+		DP:             12000,
+		HP:             450,
+		MaxHP:          450,
+		BP:             250,
+		MaxBP:          250,
+		MP:             300,
+		MaxMP:          300,
+		SP:             150,
+		MaxSP:          150,
 		Strength:       65,
 		Constitution:   45,
 		Intelligence:   50,
@@ -473,12 +473,12 @@ func MakePlayer(fname string, lname string, gender string, race string, skin str
 		Search:         0,
 		Stealth:        0,
 		Traps:          0,
-		Aeolandis:      0,
-		Hieroform:      0,
-		Highgundis:     0,
-		Oldpraxic:      100,
-		Praxic:         100,
-		Runic:          0,
+		Leshic:         0,
+		Elvish:         0,
+		Orcish:         0,
+		Common:         100,
+		Dwarvish:       100,
+		Gnomish:        0,
 		Head:           "None",
 		Chest:          "None",
 		Arms:           "None",
@@ -513,16 +513,16 @@ func MakePlayerByName(name string) Pc {
 		Skin:           "White",
 		Profession:     "Engineer",
 		Alive:          true,
-		Plevel:         51,
-		Dp:             12000,
-		Hp:             450,
-		Maxhp:          450,
-		Bp:             250,
-		Maxbp:          250,
-		Mp:             300,
-		Maxmp:          300,
-		Sp:             150,
-		Maxsp:          150,
+		PLevel:         51,
+		DP:             12000,
+		HP:             450,
+		MaxHP:          450,
+		BP:             250,
+		MaxBP:          250,
+		MP:             300,
+		MaxMP:          300,
+		SP:             150,
+		MaxSP:          150,
 		Strength:       65,
 		Constitution:   45,
 		Intelligence:   50,
@@ -572,12 +572,12 @@ func MakePlayerByName(name string) Pc {
 		Search:         0,
 		Stealth:        0,
 		Traps:          0,
-		Aeolandis:      0,
-		Hieroform:      0,
-		Highgundis:     0,
-		Oldpraxic:      100,
-		Praxic:         100,
-		Runic:          0,
+		Leshic:         0,
+		Elvish:         0,
+		Orcish:         0,
+		Common:         100,
+		Dwarvish:       100,
+		Gnomish:        0,
 		Head:           "None",
 		Chest:          "None",
 		Arms:           "None",
