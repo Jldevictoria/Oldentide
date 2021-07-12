@@ -12,13 +12,10 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
-	"net"
 	"os"
 	"path/filepath"
 	"regexp"
 	"runtime"
-
-	"github.com/vmihailenco/msgpack"
 )
 
 // CheckErr checks the error status of an operation.
@@ -121,13 +118,4 @@ func PrettyPrint(v interface{}) (err error) {
 		fmt.Println(string(b))
 	}
 	return
-}
-
-// MarshallAndSendPacket will take in a generic packet, marshall it, and send it to the specified UDP address.
-func MarshallAndSendPacket(v interface{}, target net.Conn) {
-	reqpac, err := msgpack.Marshal(v)
-	CheckErr(err)
-	fmt.Println(reqpac)
-	fmt.Println(target)
-	target.Write(reqpac)
 }
