@@ -35,4 +35,4 @@ Test client will be placed in the root directory.  It may use shared code, but s
 
 **Please contact me immediately if you see any bugs or want to contribute.  I need help developing the game!**<br>
 
-[Reading Material](COPYRIGHT.md)
+[Copyright Reading Material](COPYRIGHT.md)
