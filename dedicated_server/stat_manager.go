@@ -8,7 +8,9 @@ package main
 import "Oldentide/shared"
 
 // DPPerLevel is a list of how much experience is granted at each level (starting from level 1).
-// I would like to do this via formula, but I'm having trouble fitting a common equation to this line.
+// I figured out the equation for this today, need to incorporate it at some point.
+// DevelopmentPoints(level) = DevelopmentPoints(level - 1) + 75 * (level - 1) + (2 * (level - 1) * (level - 2))
+// Where DevelopmentPoints(1) = 1500 and points are only awarded from level[1:51]
 var DPPerLevel []int64 = []int64{
 	1500,
 	1575,
