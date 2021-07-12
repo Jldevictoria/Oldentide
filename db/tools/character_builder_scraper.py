@@ -302,9 +302,9 @@ for filename in os.listdir(info_path):
 	if (info_data[-1] == "\n"):
 		info_data = info_data[0:-1]
 	if info_name in professions:
-		professions[info_name]['Description'] = info_data[-1].rstrip("\n").replace(",", " -")
+		professions[info_name]['Description'] = "none" # info_data[-1].rstrip("\n").replace(",", " -")
 	elif info_name in races:
-		races[info_name]['Description'] = info_data[-1].rstrip("\n").replace(",", " -")
+		races[info_name]['Description'] = "none" # info_data[-1].rstrip("\n").replace(",", " -")
 
 #pprint.pprint(races)
 #pprint.pprint(professions)
